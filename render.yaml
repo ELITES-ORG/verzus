@@ -1,0 +1,102 @@
+# Render Blueprint: Render > New > Blueprint, pick this repo. Creates the
+# services below; it does not create Supabase (set that up separately).
+# Values marked sync: false are entered in the Render dashboard, never committed.
+# Pick the same region as the Supabase project (Singapore for a Philippines launch).
+
+services:
+  # Trusted API: ratings, payments, matchmaking. Paid plan so it never sleeps
+  # (a sleeping service would delay payment webhooks).
+  - type: web
+    name: verzus-api
+    runtime: node
+    plan: starter
+    region: singapore
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @verzus/api build
+    startCommand: pnpm --filter @verzus/api start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: PAYMENT_PROVIDER
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+
+  # Player PWA (Expo web export + Workbox service worker).
+  - type: web
+    name: verzus-player
+    runtime: static
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @verzus/player build
+    staticPublishPath: apps/player/dist
+    routes:
+      # Single-page app: every path (e.g. /m/<match id> invite links) serves index.html.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache
+    envVars:
+      - key: EXPO_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: EXPO_PUBLIC_API_URL
+        sync: false
+
+  # Venue dashboard (Vite + React).
+  - type: web
+    name: verzus-venue
+    runtime: static
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @verzus/venue build
+    staticPublishPath: apps/venue/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: VITE_API_URL
+        sync: false
+
+  # Public landing page (Vite, no framework). Long cache for hashed assets only.
+  - type: web
+    name: verzus-site
+    runtime: static
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @verzus/site build
+    staticPublishPath: apps/site/dist
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    envVars:
+      - key: VITE_PLAYER_URL
+        sync: false
+      - key: VITE_VENUE_URL
+        sync: false
+
+  # Daily: sigma growth for inactive players (see apps/api/src/jobs).
+  - type: cron
+    name: verzus-inactivity-decay
+    runtime: node
+    region: singapore
+    schedule: "0 19 * * *" # 03:00 Philippine time
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @verzus/api build
+    startCommand: pnpm --filter @verzus/api job:inactivity-decay
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false

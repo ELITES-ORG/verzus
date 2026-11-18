@@ -1,0 +1,70 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "verzus: start all",
+      "detail": "Docker + local Supabase, then API, player app, venue dashboard and landing page",
+      "dependsOrder": "sequence",
+      "dependsOn": ["verzus: database", "verzus: apps"],
+      "problemMatcher": []
+    },
+    {
+      "label": "verzus: apps",
+      "detail": "API, player app, venue dashboard and landing page, in parallel",
+      "dependsOn": ["verzus: api", "verzus: player", "verzus: venue", "verzus: site"],
+      "problemMatcher": []
+    },
+    {
+      "label": "verzus: database",
+      "detail": "Starts Docker Desktop if needed, then local Supabase (skipped if already running)",
+      "type": "shell",
+      "command": "pnpm db:up",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+    {
+      "label": "verzus: api",
+      "detail": "http://localhost:8787",
+      "type": "shell",
+      "command": "pnpm --filter @verzus/api dev",
+      "problemMatcher": [],
+      "runOptions": { "instanceLimit": 1 },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+    {
+      "label": "verzus: player",
+      "detail": "http://localhost:8081",
+      "type": "shell",
+      "command": "pnpm --filter @verzus/player web",
+      "problemMatcher": [],
+      "runOptions": { "instanceLimit": 1 },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+    {
+      "label": "verzus: venue",
+      "detail": "http://localhost:5173",
+      "type": "shell",
+      "command": "pnpm --filter @verzus/venue dev",
+      "problemMatcher": [],
+      "runOptions": { "instanceLimit": 1 },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+    {
+      "label": "verzus: site",
+      "detail": "http://localhost:5174",
+      "type": "shell",
+      "command": "pnpm --filter @verzus/site dev",
+      "problemMatcher": [],
+      "runOptions": { "instanceLimit": 1 },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+    {
+      "label": "verzus: stop database",
+      "detail": "Stops local Supabase (run Tasks: Terminate Task > All Running Tasks for the rest)",
+      "type": "shell",
+      "command": "pnpm db:stop",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared" }
+    }
+  ]
+}

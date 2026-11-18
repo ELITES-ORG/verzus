@@ -1,0 +1,10 @@
+{
+  "name": "@verzus/tailwind",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./preset.js",
+  "exports": {
+    ".": "./preset.js",
+    "./colors": "./colors.js"
+  }
+}

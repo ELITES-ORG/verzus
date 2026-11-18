@@ -1,0 +1,36 @@
+{
+  "name": "@verzus/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./client": "./src/client.ts"
+  },
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "job:inactivity-decay": "node dist/jobs/inactivity-decay.js",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.9",
+    "@hono/zod-validator": "^0.9.1",
+    "@sentry/node": "^11.14.0",
+    "hono": "^4.13.19",
+    "jose": "^6.2.17",
+    "postgres": "^4.1.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "@verzus/matchmaking": "workspace:*",
+    "@verzus/rating": "workspace:*",
+    "@verzus/schemas": "workspace:*",
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.0"
+  }
+}

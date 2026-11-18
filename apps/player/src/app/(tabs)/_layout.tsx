@@ -1,0 +1,11 @@
+import { Tabs } from 'expo-router';
+
+export default function TabsLayout() {
+  return (
+    <Tabs screenOptions={{ tabBarActiveTintColor: '#ef3207' }}>
+      <Tabs.Screen name="index" options={{ title: 'Play' }} />
+      <Tabs.Screen name="matches" options={{ title: 'Matches' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+    </Tabs>
+  );
+}

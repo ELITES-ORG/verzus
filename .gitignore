@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# builds
+dist/
+build/
+web-build/
+.turbo/
+*.tsbuildinfo
+
+# Expo
+.expo/
+expo-env.d.ts
+/apps/player/ios
+/apps/player/android
+
+# env files: commit only *.example
+.env
+.env.*
+!.env.example
+
+# Supabase local state
+supabase/.branches
+supabase/.temp
+supabase/signing_keys.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

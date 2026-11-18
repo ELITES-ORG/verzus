@@ -1,0 +1,1338 @@
+/* verzus landing page.
+ * Palette and line weights come from Sakuga VFX (ink, lavender shade, violet line,
+ * 3.2px outlines, offset shadow), with the accent changed from pink to #dd2b37. */
+
+:root {
+  --ink: #1d1a4a;
+  --paper: #ffffff;
+  --page: #f6f5fb;
+  --lav: #b8b3ff;
+  --lav-2: #dcd9ff;
+  --violet: #5a4fd8;
+  --dim: #6f6a9c;
+  --red: #dd2b37;
+  --red-deep: #b51f2a;
+
+  --bw: 3.2px;
+  --r: 15px;
+  --sh: 6px 7px 0 var(--lav);
+
+  --display: "Dela Gothic One", "Arial Black", system-ui, sans-serif;
+  --body: "Zen Kaku Gothic New", system-ui, sans-serif;
+  --dot: "DotGothic16", ui-monospace, monospace;
+
+  --gutter: clamp(16px, 4vw, 40px);
+  --max: 1240px;
+
+  /* Sakuga VFX theme hooks (the library reads these). */
+  --sk-acc: var(--red);
+  --sk-ink: var(--ink);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font: 500 17px / 1.65 var(--body);
+}
+
+html {
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--red);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  background: var(--ink);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  z-index: 10;
+}
+.skip:focus {
+  top: 12px;
+}
+
+/* Sakuga controls: page typography through their exposed parts. */
+sakuga-button::part(button) {
+  font-family: var(--display);
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+sakuga-checkbox::part(label) {
+  font-family: var(--body);
+  font-weight: 700;
+}
+
+.section-title {
+  font: 400 clamp(34px, 4.8vw, 62px) / 1.04 var(--display);
+  letter-spacing: -0.01em;
+}
+.section-title--light {
+  color: #fff;
+}
+
+.slate {
+  font: 400 14px / 1 var(--dot);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.slate span {
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  padding: 4px 10px 3px;
+}
+
+/* ---------------------------------------------------------------- masthead */
+
+.masthead {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 22px var(--gutter) 18px;
+  display: flex;
+  align-items: center;
+  gap: 18px 28px;
+  flex-wrap: wrap;
+}
+
+.wordmark {
+  font: 400 31px / 1 var(--display);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+/* The "v" is the verzus mark (brand/verzus-mark.svg), drawn on Dela Gothic One's own v:
+   same width and x-height, sitting on the baseline. */
+.wordmark__v {
+  display: inline-block;
+  width: 0.698em;
+  height: 0.546em;
+  vertical-align: baseline;
+  margin-right: 0.02em;
+  overflow: visible;
+}
+.wordmark__red {
+  fill: var(--red);
+}
+.wordmark__side {
+  fill: var(--mark-side, var(--violet));
+}
+.wordmark--small {
+  font-size: 20px;
+}
+
+.masthead__issue {
+  font: 400 13px / 1 var(--dot);
+  color: var(--dim);
+}
+
+.masthead__nav {
+  margin-left: auto;
+  display: flex;
+  gap: 4px 22px;
+  flex-wrap: wrap;
+  font-weight: 700;
+  font-size: 15px;
+}
+.masthead__nav a {
+  text-decoration: none;
+  padding: 4px 0;
+  border-bottom: 3px solid transparent;
+}
+.masthead__nav a:hover {
+  border-bottom-color: var(--red);
+}
+
+/* ------------------------------------------------------------------ splash */
+
+.splash {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto auto;
+  gap: 14px;
+}
+
+.cut {
+  position: relative;
+}
+.cut__time {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  font: 400 12px / 1 var(--dot);
+  color: var(--violet);
+}
+.cut--lobby .cut__time {
+  color: var(--lav);
+}
+.cut__no {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: var(--ink);
+  color: #fff;
+  font: 400 13px / 1 var(--dot);
+  padding: 6px 8px 5px;
+}
+
+/* Hero panel: ink outer shape, paper inner shape, both cut on a diagonal. */
+.cut--hero {
+  grid-column: 1 / span 8;
+  grid-row: 1 / span 2;
+  --cut: 56px;
+}
+.cut__ink {
+  height: 100%;
+  background: var(--ink);
+  padding: var(--bw);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--cut)) 100%, 0 100%);
+}
+.cut__paper {
+  height: 100%;
+  background: var(--paper);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--cut) + 1px) 100%, 0 100%);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 640px;
+  padding: clamp(28px, 4.4vw, 60px);
+  padding-right: calc(clamp(28px, 4.4vw, 60px) + var(--cut));
+  /* Room for the visible part of the 対戦 that bleeds off the top. */
+  padding-top: clamp(130px, 12.5vw, 170px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 22px;
+}
+
+/* Focus lines: two conic layers with different spacing so they don't read as a pattern. */
+.hero__lines {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-conic-gradient(from 2deg at 84% 26%, transparent 0deg 4.1deg, rgb(29 26 74 / 0.07) 4.1deg 4.6deg),
+    repeating-conic-gradient(from 0deg at 84% 26%, transparent 0deg 6.7deg, rgb(29 26 74 / 0.05) 6.7deg 7.9deg);
+  -webkit-mask-image: radial-gradient(circle at 84% 26%, transparent 0 140px, #000 520px);
+  mask-image: radial-gradient(circle at 84% 26%, transparent 0 140px, #000 520px);
+  pointer-events: none;
+}
+
+.hero__kanji {
+  position: absolute;
+  top: -36px;
+  right: calc(var(--cut) + 4px);
+  width: clamp(250px, 27vw, 380px);
+  height: auto;
+  overflow: visible;
+  pointer-events: none;
+}
+.hero__kanji path {
+  fill: none;
+  stroke: var(--lav);
+  stroke-width: 2.4px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+.hero__kicker {
+  position: relative;
+  font: 400 14px / 1 var(--dot);
+  color: var(--dim);
+}
+.hero__kicker .dot {
+  color: var(--red);
+  margin-right: 4px;
+}
+
+.hero__title {
+  position: relative;
+  font: 400 clamp(38px, 5.3vw, 74px) / 1.04 var(--display);
+  letter-spacing: -0.015em;
+  max-width: 10em;
+  text-wrap: balance;
+}
+.hero__line {
+  display: block;
+}
+.hero__line--hit {
+  margin-top: 0.12em;
+  transform-origin: 0 60%;
+  animation: hit 0.75s cubic-bezier(0.2, 0.9, 0.3, 1) 0.3s both;
+}
+.hero__line em {
+  font-style: normal;
+  color: var(--red);
+}
+
+/* A smear-in: the line is wiped on stretched and skewed, overshoots, settles. No fading. */
+@keyframes hit {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(-18px) skewX(-20deg) scaleX(1.22);
+  }
+  34% {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(6px) skewX(-14deg) scaleX(1.12);
+  }
+  58% {
+    transform: translateX(-3px) skewX(5deg) scaleX(0.97);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+
+.hero__lede {
+  position: relative;
+  max-width: 33em;
+  font-size: clamp(17px, 1.5vw, 19px);
+}
+
+.hero__cta {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 20px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.hero__gloss {
+  position: absolute;
+  bottom: 22px;
+  right: calc(var(--cut) + 22px);
+  font: 400 12px / 1 var(--dot);
+  color: var(--dim);
+}
+
+/* Ticket panel: screentone field with the ticket on it. */
+.cut--ticket {
+  grid-column: 9 / span 4;
+  grid-row: 1;
+  border: var(--bw) solid var(--ink);
+  background:
+    radial-gradient(var(--lav) 1.3px, transparent 1.6px) 0 0 / 8px 8px,
+    var(--paper);
+  display: grid;
+  place-items: center;
+  padding: 34px 22px;
+  min-height: 300px;
+}
+
+.ticket {
+  width: min(100%, 300px);
+  background: var(--paper);
+  border: var(--bw) solid var(--ink);
+  border-radius: 12px;
+  box-shadow: var(--sh);
+  transform: rotate(-2.4deg);
+  overflow: hidden;
+}
+.ticket__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  background: var(--red);
+  color: #fff;
+  padding: 10px 16px 8px;
+  font: 400 15px / 1 var(--display);
+  letter-spacing: 0.06em;
+}
+.ticket__no {
+  font: 400 13px / 1 var(--dot);
+  letter-spacing: 0;
+}
+.ticket__rows {
+  margin: 0;
+  padding: 12px 16px 6px;
+  display: grid;
+  gap: 6px;
+}
+.ticket__rows div {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  align-items: baseline;
+}
+.ticket__rows dt {
+  font: 400 12px / 1 var(--dot);
+  color: var(--dim);
+}
+.ticket__rows dd {
+  margin: 0;
+  font-weight: 700;
+  font-size: 15px;
+}
+.ticket__rows dd.ticket__price {
+  font: 400 26px / 1 var(--display);
+  color: var(--red);
+}
+.ticket__foot {
+  border-top: 2.4px dashed var(--ink);
+  margin: 8px 0 0;
+  padding: 9px 16px 10px;
+  font: 400 12px / 1 var(--dot);
+  color: var(--dim);
+}
+
+/* Lobby panel: the dark panel in the spread. */
+.cut--lobby {
+  grid-column: 9 / span 4;
+  grid-row: 2;
+  background: var(--ink);
+  display: grid;
+  place-items: center;
+  padding: 34px 22px;
+  min-height: 300px;
+}
+.cut--lobby .cut__no {
+  background: var(--red);
+}
+
+.lobby {
+  width: min(100%, 310px);
+  background: var(--paper);
+  border: var(--bw) solid var(--ink);
+  border-radius: var(--r);
+  box-shadow: 6px 7px 0 var(--violet);
+  padding: 16px 18px 14px;
+  transform: rotate(1.6deg);
+}
+.lobby__mode {
+  font: 400 13px / 1 var(--dot);
+  color: var(--dim);
+  margin-bottom: 14px;
+}
+.lobby__row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.lobby__vs {
+  font: 400 26px / 1 var(--display);
+  color: var(--red);
+  transform: rotate(-8deg);
+}
+.slot {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.slot__face {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: var(--bw) solid var(--ink);
+  display: grid;
+  place-items: center;
+  font: 400 15px / 1 var(--display);
+  background: var(--lav-2);
+}
+.slot--open .slot__face {
+  background: var(--paper);
+  border-style: dashed;
+  color: var(--dim);
+  font-size: 24px;
+}
+.slot--filled .slot__face {
+  background: var(--red);
+  color: #fff;
+  border-style: solid;
+}
+.slot__tier {
+  font: 400 12px / 1.2 var(--dot);
+  color: var(--dim);
+}
+.lobby__split {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 2px solid var(--lav-2);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------ storyboard */
+
+.board {
+  max-width: var(--max);
+  margin: clamp(90px, 12vw, 150px) auto 0;
+  padding: 0 var(--gutter);
+}
+.board__head {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 34px;
+}
+.board__head .slate {
+  color: var(--violet);
+}
+
+.board__cols,
+.row {
+  display: grid;
+  grid-template-columns: 70px minmax(280px, 1.12fr) minmax(0, 1fr) 92px;
+}
+
+.board__cols {
+  font: 400 12px / 1 var(--dot);
+  color: var(--dim);
+  border-bottom: var(--bw) solid var(--ink);
+  padding-bottom: 8px;
+}
+.board__cols span:last-child {
+  text-align: right;
+}
+
+.board__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  border-bottom: 2px solid var(--ink);
+  align-items: stretch;
+}
+.row > * {
+  padding: 20px 0;
+}
+.row__cut {
+  font: 400 30px / 1 var(--display);
+  color: var(--ink);
+  padding-top: 26px;
+}
+.row:nth-child(odd) .row__cut {
+  color: var(--red);
+}
+.row__pic {
+  border: var(--bw) solid var(--ink);
+  background: var(--paper);
+  margin: 18px 28px 18px 0;
+  padding: 0;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.row__pic--control {
+  aspect-ratio: auto;
+  min-height: 200px;
+  padding: 26px 20px;
+  background:
+    radial-gradient(var(--lav-2) 1.3px, transparent 1.6px) 0 0 / 9px 9px,
+    var(--paper);
+}
+.row__pic--tall {
+  min-height: 250px;
+}
+.row__act {
+  padding-top: 24px;
+  padding-right: 24px;
+}
+.row__act h3 {
+  font: 400 26px / 1.1 var(--display);
+  margin-bottom: 10px;
+}
+.row__act p {
+  max-width: 30em;
+}
+.row__try {
+  margin-top: 10px;
+  font: 400 13px / 1 var(--dot);
+  color: var(--red);
+}
+.row__try::before {
+  content: "← ";
+}
+.row__time {
+  font: 400 15px / 1.35 var(--dot);
+  text-align: right;
+  padding-top: 26px;
+  color: var(--violet);
+}
+
+.art {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.art__ink {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.art__thin {
+  stroke-width: 1.6;
+}
+.art__shade {
+  fill: var(--lav-2);
+}
+.art__net {
+  fill: rgb(184 179 255 / 0.45);
+  stroke: var(--ink);
+  stroke-width: 3.2;
+  stroke-linejoin: round;
+}
+.art__acc {
+  fill: var(--red);
+}
+.art__tick {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.art__skirt {
+  fill: #fff;
+}
+.art__cork {
+  fill: #fff;
+  stroke: var(--ink);
+  stroke-width: 3.2;
+}
+.art__speed path {
+  stroke: var(--ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+
+.call {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+}
+.chip {
+  display: inline-block;
+  font: 400 18px / 1 var(--display);
+  padding: 9px 14px 8px;
+  border: var(--bw) solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: 4px 5px 0 var(--lav);
+}
+.chip--up {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 4px 5px 0 var(--ink);
+}
+.chip__was {
+  font: 400 13px / 1 var(--dot);
+  color: var(--dim);
+  margin-right: 8px;
+  text-decoration: line-through;
+}
+
+/* -------------------------------------------------------------- versus */
+
+.arena {
+  margin-top: clamp(100px, 13vw, 160px);
+  background:
+    radial-gradient(rgb(184 179 255 / 0.12) 1.4px, transparent 1.7px) 0 0 / 10px 10px,
+    var(--ink);
+  color: #fff;
+  padding: clamp(64px, 9vw, 110px) var(--gutter) 70px;
+  position: relative;
+}
+.arena > * {
+  max-width: var(--max);
+  margin-left: auto;
+  margin-right: auto;
+}
+.arena__intro {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px 60px;
+  align-items: end;
+}
+.arena__intro p {
+  color: var(--lav-2);
+  max-width: 30em;
+}
+
+.arena__controls {
+  margin-top: 44px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px 40px;
+  align-items: flex-end;
+}
+.arena__range {
+  display: grid;
+  gap: 4px;
+}
+.arena__label {
+  font: 400 13px / 1 var(--dot);
+  color: var(--lav);
+}
+
+.hud {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 18px 28px;
+  align-items: center;
+}
+.fighter {
+  display: grid;
+  gap: 6px;
+}
+.fighter--rival {
+  text-align: right;
+  justify-items: end;
+}
+.fighter__tag {
+  font: 400 13px / 1 var(--dot);
+  color: var(--lav);
+}
+.fighter__name {
+  font: 400 clamp(34px, 4.6vw, 56px) / 1 var(--display);
+}
+.fighter__tier {
+  font: 400 15px / 1 var(--dot);
+  color: var(--lav);
+}
+.fighter__odds {
+  font: 400 14px / 1 var(--dot);
+  color: var(--lav-2);
+}
+
+/* Health bars, slanted like an arcade HUD; the rival's fills from the right. */
+.bar {
+  width: 100%;
+  height: 26px;
+  border: var(--bw) solid #fff;
+  transform: skewX(-18deg);
+  background: rgb(255 255 255 / 0.06);
+  margin: 8px 0 4px;
+  overflow: hidden;
+  display: flex;
+}
+.bar--rival {
+  transform: skewX(18deg);
+  justify-content: flex-end;
+}
+.bar span {
+  display: block;
+  height: 100%;
+  width: 50%;
+  transition: width 0.55s cubic-bezier(0.2, 1.3, 0.4, 1);
+  background: repeating-linear-gradient(90deg, transparent 0 14px, rgb(0 0 0 / 0.12) 14px 16px), var(--lav);
+}
+.bar--rival span {
+  background: repeating-linear-gradient(90deg, transparent 0 14px, rgb(0 0 0 / 0.14) 14px 16px), var(--red);
+}
+
+.hud__vs {
+  font: 400 clamp(64px, 9vw, 120px) / 1 var(--display);
+  color: var(--red);
+  -webkit-text-stroke: 3px #fff;
+  paint-order: stroke fill;
+  transform: rotate(-9deg);
+  padding: 0 6px;
+}
+.hud__where {
+  grid-column: 1 / -1;
+  text-align: center;
+  font: 400 15px / 1.4 var(--dot);
+  color: var(--lav);
+  min-height: 1.4em;
+}
+
+.arena__actions {
+  margin-top: 34px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px 22px;
+}
+.arena__fine {
+  margin-top: 26px;
+  text-align: center;
+  font: 400 12px / 1 var(--dot);
+  color: var(--dim);
+}
+.arena__toast {
+  /* Hidden toasts keep their box; don't let it eat clicks in the corner. Its close button stays keyboard-reachable. */
+  pointer-events: none;
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 5;
+}
+
+/* ---------------------------------------------------------------- ladder */
+
+.ladder {
+  max-width: var(--max);
+  margin: clamp(100px, 13vw, 160px) auto 0;
+  padding: 0 var(--gutter);
+}
+.ladder__head {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 18px 60px;
+  align-items: end;
+  margin-bottom: 44px;
+}
+.ladder__head p {
+  max-width: 26em;
+}
+.ladder__body {
+  display: grid;
+  grid-template-columns: minmax(300px, 520px) 1fr;
+  gap: 40px 64px;
+  align-items: start;
+}
+
+.rungs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.rung {
+  height: 82px;
+  border: var(--bw) solid var(--ink);
+  margin-top: calc(-1 * var(--bw));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: var(--paper);
+}
+.rung__name {
+  font: 400 28px / 1 var(--display);
+}
+.rung__divs {
+  font: 700 13px / 1 var(--body);
+  color: var(--dim);
+  letter-spacing: 0.08em;
+  word-spacing: 6px;
+}
+/* Narrows toward the top; tone gets denser as you climb. */
+.rung--bronze {
+  width: 100%;
+}
+.rung--silver {
+  width: 91%;
+  background:
+    radial-gradient(var(--lav) 1.2px, transparent 1.5px) 0 0 / 10px 10px,
+    var(--paper);
+}
+.rung--gold {
+  width: 82%;
+  background:
+    radial-gradient(var(--lav) 1.6px, transparent 1.9px) 0 0 / 7px 7px,
+    var(--paper);
+}
+.rung--platinum {
+  width: 73%;
+  background: repeating-linear-gradient(-45deg, var(--lav-2) 0 3px, var(--paper) 3px 8px);
+}
+.rung--diamond {
+  width: 64%;
+  background: var(--ink);
+  color: #fff;
+  border-left: 12px solid var(--red);
+}
+
+.notes {
+  display: grid;
+  gap: 22px;
+  padding-top: 8px;
+}
+.note {
+  position: relative;
+  background: var(--paper);
+  border: var(--bw) solid var(--ink);
+  border-radius: 22px;
+  padding: 16px 20px;
+  max-width: 30em;
+}
+.note::before,
+.note::after {
+  content: "";
+  position: absolute;
+  top: 22px;
+  border-style: solid;
+  border-color: transparent;
+}
+.note::before {
+  left: -24px;
+  border-width: 11px 24px 11px 0;
+  border-right-color: var(--ink);
+}
+.note::after {
+  left: -17px;
+  top: 26px;
+  border-width: 7px 18px 7px 0;
+  border-right-color: var(--paper);
+}
+.note--1 {
+  transform: rotate(-1deg);
+  box-shadow: var(--sh);
+}
+.note--2 {
+  margin-left: 40px;
+  transform: rotate(0.8deg);
+}
+.note--3 {
+  margin-left: 12px;
+  background: var(--lav-2);
+  transform: rotate(-0.6deg);
+}
+.note--3::after {
+  border-right-color: var(--lav-2);
+}
+.note--4 {
+  margin-left: 56px;
+  transform: rotate(1.2deg);
+}
+
+/* --------------------------------------------------------------- show up */
+
+.showup {
+  max-width: 1080px;
+  margin: clamp(100px, 13vw, 170px) auto 0;
+  padding: 0 var(--gutter);
+  display: grid;
+  grid-template-columns: minmax(220px, 340px) 1fr;
+  gap: 40px 70px;
+  align-items: center;
+}
+
+.stamp svg {
+  width: 100%;
+  height: auto;
+  transform: rotate(-12deg);
+  mix-blend-mode: multiply;
+}
+.stamp circle {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 7;
+}
+.stamp circle.thin {
+  stroke-width: 2.4;
+}
+.stamp__ring {
+  font: 400 15px var(--dot);
+  fill: var(--red);
+  letter-spacing: 3px;
+}
+.stamp__num {
+  font: 400 56px var(--display);
+  fill: var(--red);
+  text-anchor: middle;
+}
+
+.showup__copy {
+  display: grid;
+  gap: 22px;
+}
+.showup__copy > p {
+  max-width: 31em;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--paper);
+  border: var(--bw) solid var(--ink);
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  padding: 12px 16px;
+  max-width: 440px;
+}
+.card__face {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: var(--bw) solid var(--ink);
+  background: var(--lav-2);
+  display: grid;
+  place-items: center;
+  font: 400 14px / 1 var(--display);
+}
+.card__name {
+  font-weight: 700;
+}
+.card__meta {
+  font: 400 12px / 1.2 var(--dot);
+  color: var(--dim);
+}
+.card__rel {
+  margin-left: auto;
+  font: 400 13px / 1 var(--dot);
+  color: var(--red);
+  border: 2.4px solid var(--red);
+  border-radius: 999px;
+  padding: 7px 10px 6px;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- venues */
+
+.venues {
+  margin: clamp(100px, 13vw, 170px) 0 0;
+  background: var(--lav);
+  padding: clamp(64px, 9vw, 110px) var(--gutter);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 400px);
+  gap: 48px 80px;
+  align-items: start;
+  /* Keep the content to the page width while the colour runs edge to edge. */
+  padding-left: max(var(--gutter), calc((100% - var(--max)) / 2 + var(--gutter)));
+  padding-right: max(var(--gutter), calc((100% - var(--max)) / 2 + var(--gutter)));
+}
+.venues__copy {
+  display: grid;
+  gap: 20px;
+  justify-items: start;
+}
+.venues__copy p {
+  max-width: 32em;
+}
+.venues .section-title {
+  color: var(--ink);
+}
+.venues .slate {
+  margin-bottom: 0;
+}
+
+.day {
+  margin: 0;
+  background: var(--paper);
+  border: var(--bw) solid var(--ink);
+  box-shadow: 8px 9px 0 var(--ink);
+  padding: 16px 18px 18px;
+  transform: rotate(1.4deg);
+}
+.day__cap {
+  display: flex;
+  justify-content: space-between;
+  font: 400 18px / 1 var(--display);
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 14px;
+}
+.day__grid {
+  --h: 28px;
+  position: relative;
+  height: calc(16 * var(--h));
+  margin-left: 34px;
+  background: repeating-linear-gradient(180deg, var(--lav-2) 0 1px, transparent 1px var(--h));
+}
+.day__hours {
+  position: absolute;
+  left: -34px;
+  top: -7px;
+  bottom: 0;
+  display: grid;
+  grid-template-rows: repeat(8, calc(2 * var(--h)));
+  font: 400 11px / 1 var(--dot);
+  color: var(--dim);
+}
+.day__hours i {
+  font-style: normal;
+}
+.blk {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: calc((var(--from) - 7) * var(--h) + 2px);
+  height: calc((var(--to) - var(--from)) * var(--h) - 4px);
+  border: 2.4px solid var(--ink);
+  border-radius: 8px;
+  padding: 4px 9px;
+  font: 400 12px / 1.2 var(--dot);
+  overflow: hidden;
+}
+.blk--app {
+  background: var(--red);
+  color: #fff;
+}
+.blk--match {
+  background: repeating-linear-gradient(-45deg, var(--red) 0 8px, var(--red-deep) 8px 12px);
+}
+.blk--walk {
+  background: var(--paper);
+}
+.blk--phone {
+  background:
+    radial-gradient(var(--ink) 1px, transparent 1.3px) 0 0 / 5px 5px,
+    var(--lav-2);
+}
+.blk--block {
+  background: repeating-linear-gradient(45deg, var(--ink) 0 2px, var(--paper) 2px 7px);
+  color: var(--ink);
+}
+.blk b {
+  font-weight: 400;
+  background: var(--paper);
+  border: 1.6px solid var(--ink);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.day__key {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font: 400 12px / 1 var(--dot);
+}
+.day__key li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.day__key i {
+  width: 16px;
+  height: 12px;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+}
+
+/* ---------------------------------------------------------------- footer */
+
+.end {
+  position: relative;
+  overflow: hidden;
+  background: var(--ink);
+  color: #fff;
+  padding: clamp(80px, 12vw, 150px) var(--gutter) 34px;
+  text-align: center;
+}
+.end__lines {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-conic-gradient(from 0deg at 50% 46%, transparent 0deg 3.6deg, rgb(255 255 255 / 0.06) 3.6deg 4.2deg),
+    repeating-conic-gradient(from 1deg at 50% 46%, transparent 0deg 5.9deg, rgb(255 255 255 / 0.04) 5.9deg 7deg);
+  -webkit-mask-image: radial-gradient(circle at 50% 46%, transparent 0 170px, #000 640px);
+  mask-image: radial-gradient(circle at 50% 46%, transparent 0 170px, #000 640px);
+}
+.end__big {
+  position: relative;
+  font: 400 clamp(64px, 13vw, 200px) / 0.95 var(--display);
+  letter-spacing: -0.02em;
+}
+.end__big span {
+  color: var(--red);
+  display: inline-block;
+  transform: rotate(-6deg) scale(1.08);
+}
+.end__cta {
+  position: relative;
+  margin-top: 42px;
+}
+.end__small {
+  position: relative;
+  margin-top: 90px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px 28px;
+  max-width: var(--max);
+  margin-left: auto;
+  margin-right: auto;
+  font: 400 12px / 1.4 var(--dot);
+  color: var(--lav);
+  border-top: 2px solid rgb(184 179 255 / 0.3);
+  padding-top: 22px;
+}
+.end__small a {
+  color: #fff;
+}
+.end .wordmark {
+  color: #fff;
+  /* On dark grounds the mark's violet side switches to lavender. */
+  --mark-side: var(--lav);
+}
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 1080px) {
+  .cut--hero {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .cut--ticket {
+    grid-column: 1 / span 6;
+    grid-row: auto;
+  }
+  .cut--lobby {
+    grid-column: 7 / span 6;
+    grid-row: auto;
+  }
+  .hero {
+    min-height: 560px;
+  }
+}
+
+@media (max-width: 860px) {
+  .masthead__nav {
+    display: none;
+  }
+  .board__cols {
+    display: none;
+  }
+  .row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "cut time"
+      "pic pic"
+      "act act";
+    padding-bottom: 8px;
+  }
+  .row > * {
+    padding: 0;
+  }
+  .row__cut {
+    grid-area: cut;
+    padding-top: 18px;
+  }
+  .row__time {
+    grid-area: time;
+    padding-top: 18px;
+  }
+  .row__time br {
+    display: none;
+  }
+  .row__pic {
+    grid-area: pic;
+    margin: 12px 0 0;
+  }
+  .row__act {
+    grid-area: act;
+    padding: 16px 0 14px;
+  }
+  .arena__intro,
+  .ladder__head {
+    grid-template-columns: 1fr;
+  }
+  .ladder__body,
+  .showup,
+  .venues {
+    grid-template-columns: 1fr;
+  }
+  .notes .note {
+    margin-left: 14px;
+  }
+  .stamp {
+    max-width: 230px;
+  }
+  .day {
+    transform: none;
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  .splash {
+    gap: 12px;
+  }
+  .cut--hero {
+    --cut: 0px;
+  }
+  .cut--ticket,
+  .cut--lobby {
+    grid-column: 1 / -1;
+    min-height: 0;
+  }
+  .hero {
+    min-height: 0;
+    padding-top: 104px;
+  }
+  .hero__kanji {
+    right: 10px;
+    top: -20px;
+    width: 210px;
+  }
+  /* Four tabs are a touch wider than a phone's content box. */
+  sakuga-tabs {
+    zoom: 0.88;
+  }
+  .hero__gloss {
+    display: none;
+  }
+  .hud {
+    grid-template-columns: 1fr 1fr;
+  }
+  .hud__vs {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: center;
+    font-size: 64px;
+  }
+  .rung__name {
+    font-size: 22px;
+  }
+  .rung {
+    padding: 0 14px;
+    height: 70px;
+  }
+  .end__small {
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .hero__line--hit {
+    animation: none;
+  }
+  .bar span {
+    transition: none;
+  }
+}

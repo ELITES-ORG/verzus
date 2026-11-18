@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>verzus · book a court, get a rival</title>
+    <meta
+      name="description"
+      content="Book a court near you and open it as a ranked or casual match. A player around your level takes the other side, and everyone pays their share in the app."
+    />
+    <meta name="theme-color" content="#1d1a4a" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Sakuga VFX: plain scripts, loaded before the page module so window.SakugaFX exists when it runs. -->
+    <script defer src="/sakuga-vfx/button.js"></script>
+    <script defer src="/sakuga-vfx/radio.js"></script>
+    <script defer src="/sakuga-vfx/progress.js"></script>
+    <script defer src="/sakuga-vfx/checkbox.js"></script>
+    <script defer src="/sakuga-vfx/tabs.js"></script>
+    <script defer src="/sakuga-vfx/slider.js"></script>
+    <script defer src="/sakuga-vfx/toast.js"></script>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="masthead">
+      <a class="wordmark" href="/" aria-label="verzus, home"><svg class="wordmark__v" viewBox="0 94 698 546" aria-hidden="true" focusable="false"><path class="wordmark__red" d="M0 94L235 94L389 640L193 640Q103 367 0 94Z" /><path class="wordmark__side" d="M466 94L698 94Q590 385 506 640L389 640L351 506Z" /></svg>erzus</a>
+      <p class="masthead__issue">ch.01 <span aria-hidden="true">/</span> the 7 pm slot</p>
+      <nav class="masthead__nav" aria-label="Sections">
+        <a href="#how">How it works</a>
+        <a href="#rival">Find a rival</a>
+        <a href="#ladder">Ranks</a>
+        <a href="#venues">Venues</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <!-- 1. Splash page ------------------------------------------------------ -->
+      <section class="splash" aria-labelledby="hero-title">
+        <div class="cut cut--hero">
+          <div class="cut__ink">
+            <div class="cut__paper hero">
+              <div class="hero__lines" aria-hidden="true"></div>
+              <!-- 対戦 (taisen), outlined from Dela Gothic One so no Japanese font file is downloaded. -->
+              <svg class="hero__kanji" viewBox="-42 353 2045 840" aria-hidden="true" focusable="false"><path d="M981 451V649H941V1033Q941 1092 914.5 1118.5Q888 1145 828.5 1153.0Q769 1161 641 1161H474Q472 1110 464.5 1067.5Q457 1025 438 990Q407 1032 375 1094Q348 1055 314 1014Q240 1106 151 1165Q119 1113 79.5 1073.0Q40 1033 -18 1004Q106 941 175 870Q122 824 27 757L122 632H24V441H158V390H359V441H471V632H407L502 667Q496 686 482 722L605 657Q681 746 739 846V649H496V451H739V390H941V451ZM180 632Q210 659 279 716Q298 671 311 632ZM645 961Q686 961 706.5 957.5Q727 954 733.0 947.5Q739 941 739 929V858L584 940Q536 849 464 765Q451 796 427 842L449 862L502 911Q481 934 465 954Q580 961 645 961Z M1979 945Q1979 982 1973 1041Q1966 1106 1942.5 1134.5Q1919 1163 1879 1163Q1845 1163 1803.0 1139.0Q1761 1115 1722 1063Q1674 1120 1614 1169Q1596 1118 1567 1064V1094H1379V1158H1205V1094H1029V931H1205V910H1038V469H1090L1079 404L1206 387L1219 469H1240L1224 394L1351 377L1365 469H1375L1389 387L1514 404L1503 469H1546V512H1568Q1565 455 1565 390H1747L1745 445L1844 377Q1885 412 1956 489L1920 512H1963V693H1841L1900 751L1882 796Q1923 822 1975 836Q1979 901 1979 945ZM1745 512H1807Q1783 487 1745 457ZM1232 605H1192V642H1232ZM1392 605H1352V642H1392ZM1567 935Q1595 919 1633 889Q1601 796 1585 693H1546V910H1379V931H1567ZM1808 693H1761Q1763 700 1765 714Q1768 724 1772 744ZM1232 739H1192V776H1232ZM1352 739V776H1392V739ZM1869 918Q1869 895 1861 841Q1842 881 1836 892Q1853 922 1867 927Q1869 927 1869 918Z" /></svg>
+              <p class="hero__kicker"><span class="dot">●</span> Court booking, rival included</p>
+              <h1 id="hero-title" class="hero__title">
+                <span class="hero__line">You book the court.</span>
+                <span class="hero__line hero__line--hit">Someone shows up <em>to beat you on <span data-hit>it.</span></em></span>
+              </h1>
+              <p class="hero__lede">
+                verzus finds open courts near you and turns your booking into a match. Open it as ranked or casual, a
+                player around your level takes the other side, and the court fee splits itself.
+              </p>
+              <div class="hero__cta">
+                <sakuga-button data-go="player">Find a game</sakuga-button>
+                <sakuga-button variant="secondary" data-go="venue">I run a venue</sakuga-button>
+              </div>
+              <p class="hero__gloss" aria-hidden="true">対戦 · taisen · a match-up</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="cut cut--ticket">
+          <article class="ticket" aria-label="Example booking">
+            <header class="ticket__head">
+              <span>Booked</span>
+              <span class="ticket__no">No. 0419</span>
+            </header>
+            <dl class="ticket__rows">
+              <div><dt>Venue</dt><dd>Smash Hall, BGC</dd></div>
+              <div><dt>Court</dt><dd>B, badminton</dd></div>
+              <div><dt>When</dt><dd>Thu 19:00 to 20:00</dd></div>
+              <div><dt>Paid</dt><dd class="ticket__price">₱300</dd></div>
+            </dl>
+            <p class="ticket__foot">Slot held 10:00 while you pay</p>
+          </article>
+          <span class="cut__no" aria-hidden="true">2</span>
+          <span class="cut__time" aria-hidden="true">Mon 21:14</span>
+        </div>
+
+        <div class="cut cut--lobby">
+          <article class="lobby" aria-label="Example match lobby" data-lobby>
+            <p class="lobby__mode">Singles <span aria-hidden="true">·</span> ranked</p>
+            <div class="lobby__row">
+              <div class="slot">
+                <span class="slot__face">You</span>
+                <span class="slot__tier">Silver II</span>
+              </div>
+              <span class="lobby__vs" aria-hidden="true">VS</span>
+              <div class="slot slot--open" data-rival-slot>
+                <span class="slot__face" data-rival-face>?</span>
+                <span class="slot__tier" data-rival-tier>1 spot open</span>
+              </div>
+            </div>
+            <p class="lobby__split" data-split aria-live="polite">₱300 on you until someone joins</p>
+          </article>
+          <span class="cut__no" aria-hidden="true">3</span>
+          <span class="cut__time" aria-hidden="true">Wed 12:40</span>
+        </div>
+      </section>
+
+      <!-- 2. Storyboard sheet ---------------------------------------------------- -->
+      <section id="how" class="board" aria-labelledby="how-title">
+        <header class="board__head">
+          <p class="slate">SC.02 <span>verzus</span> <span>cuts 1 to 5</span></p>
+          <h2 id="how-title" class="section-title">How a match happens,<br />in five key frames</h2>
+        </header>
+
+        <div class="board__cols" aria-hidden="true">
+          <span>Cut</span><span>Picture</span><span>Action</span><span>Time</span>
+        </div>
+
+        <ol class="board__rows">
+          <li class="row">
+            <span class="row__cut">01</span>
+            <div class="row__pic">
+              <svg class="art" viewBox="0 0 320 180" role="img" aria-label="A badminton court seen from behind the baseline">
+                <path class="art__shade" d="M70 168 L250 168 L214 34 L106 34 Z" />
+                <path class="art__ink" d="M70 168 L250 168 L214 34 L106 34 Z M84 150 L236 150 M98 98 L222 98 M160 168 L160 34 M118 34 L94 168 M202 34 L226 168" />
+                <path class="art__net" d="M96 98 L96 74 L224 74 L224 98" />
+                <path class="art__ink art__thin" d="M96 80 L224 80 M96 86 L224 86 M96 92 L224 92" />
+                <circle class="art__acc" cx="252" cy="40" r="14" />
+                <path class="art__tick" d="M245 40 l5 5 l9 -10" />
+              </svg>
+            </div>
+            <div class="row__act">
+              <h3>Book it.</h3>
+              <p>
+                Pick a court near you and pay for the hour. While you pay, the slot is held for ten minutes, so nobody else can take
+                it out from under you.
+              </p>
+            </div>
+            <span class="row__time">Mon<br />21:14</span>
+          </li>
+
+          <li class="row">
+            <span class="row__cut">02</span>
+            <div class="row__pic row__pic--control">
+              <sakuga-radio label="Match type" name="mode" data-mode>
+                <option value="ranked" selected>Ranked</option>
+                <option value="casual">Casual</option>
+              </sakuga-radio>
+            </div>
+            <div class="row__act">
+              <h3>Open it.</h3>
+              <p data-mode-note>
+                Ranked counts toward your tier, so we look for someone close to your level first.
+              </p>
+              <p class="row__try">Try the switch.</p>
+            </div>
+            <span class="row__time">Mon<br />21:15</span>
+          </li>
+
+          <li class="row">
+            <span class="row__cut">03</span>
+            <div class="row__pic row__pic--control row__pic--tall">
+              <sakuga-progress label="Spots filled" done-label="Game on" data-fill></sakuga-progress>
+            </div>
+            <div class="row__act">
+              <h3>Fill it.</h3>
+              <p>
+                Your allies get first dibs. Whatever is left goes public. Every joiner pays their share in the app, so ₱300 turns
+                into ₱150 each and nobody has to chase anybody for cash.
+              </p>
+            </div>
+            <span class="row__time">Wed<br />12:40</span>
+          </li>
+
+          <li class="row">
+            <span class="row__cut">04</span>
+            <div class="row__pic">
+              <svg class="art" viewBox="0 0 320 180" role="img" aria-label="A shuttlecock smashed across the frame">
+                <g class="art__speed">
+                  <path d="M62 38 L156 76" /><path d="M24 64 L150 88" /><path d="M10 98 L142 101" /><path d="M30 132 L146 113" />
+                  <path d="M60 158 L154 124" />
+                </g>
+                <path class="art__skirt" d="M214 86 L300 52 Q318 74 312 104 L220 113 Z" />
+                <path class="art__shade" d="M219 102 L310 86 Q313 95 312 104 L220 113 Z" />
+                <path class="art__ink" d="M214 86 L300 52 Q318 74 312 104 L220 113 Z M216 94 L305 64 M219 103 L310 88 M293 55 Q309 77 303 103" />
+                <circle class="art__cork" cx="204" cy="100" r="17" />
+                <path class="art__ink art__thin" d="M197 86 Q191 100 197 114" />
+                <path class="art__acc" d="M183 100 L162 86 L171 104 L146 108 L171 114 L159 133 L179 119 L183 141 L190 117 Z" />
+              </svg>
+            </div>
+            <div class="row__act">
+              <h3>Play it.</h3>
+              <p>This part is on you.</p>
+            </div>
+            <span class="row__time">Thu<br />19:00</span>
+          </li>
+
+          <li class="row">
+            <span class="row__cut">05</span>
+            <div class="row__pic row__pic--control">
+              <div class="call">
+                <sakuga-checkbox data-call>Both of us say I won</sakuga-checkbox>
+                <p class="call__tier" data-call-tier aria-live="polite">
+                  <span class="chip">Silver II</span>
+                </p>
+              </div>
+            </div>
+            <div class="row__act">
+              <h3>Call it.</h3>
+              <p>
+                Everyone confirms the result before anything moves. If the stories don't match, it goes to a dispute and nobody's
+                rating changes.
+              </p>
+            </div>
+            <span class="row__time">Thu<br />20:06</span>
+          </li>
+        </ol>
+      </section>
+
+      <!-- 3. Versus screen -------------------------------------------------------- -->
+      <section id="rival" class="arena" aria-labelledby="rival-title">
+        <div class="arena__intro">
+          <h2 id="rival-title" class="section-title section-title--light">Pick a sport.<br />We'll find you a fair fight.</h2>
+          <p>
+            We show you games close to fifty-fifty first. If nobody joins within fifteen minutes, the range loosens a notch, so a
+            quiet night still gets a game.
+          </p>
+        </div>
+
+        <div class="arena__controls">
+          <sakuga-tabs label="Sport" data-sport>
+            <option value="badminton">Badminton</option>
+            <option value="basketball">Basketball</option>
+            <option value="futsal">Futsal</option>
+            <option value="tennis">Tennis</option>
+          </sakuga-tabs>
+          <div class="arena__range">
+            <span class="arena__label" id="range-label">How far you'll go</span>
+            <sakuga-slider min="1" max="15" value="6" unit=" km" label="How far you'll go" data-range></sakuga-slider>
+          </div>
+        </div>
+
+        <div class="hud" data-hud aria-live="polite">
+          <div class="fighter fighter--you">
+            <p class="fighter__tag">P1</p>
+            <p class="fighter__name">You</p>
+            <p class="fighter__tier" data-you-tier>Silver II</p>
+            <div class="bar bar--you"><span data-bar-you></span></div>
+            <p class="fighter__odds"><span data-odds-you>50</span>% to win</p>
+          </div>
+
+          <div class="hud__vs" aria-hidden="true">VS</div>
+
+          <div class="fighter fighter--rival">
+            <p class="fighter__tag">P2</p>
+            <p class="fighter__name" data-rival-name>…</p>
+            <p class="fighter__tier" data-rival-tier-hud>…</p>
+            <div class="bar bar--rival"><span data-bar-rival></span></div>
+            <p class="fighter__odds"><span data-odds-rival>50</span>% to win</p>
+          </div>
+
+          <p class="hud__where" data-where></p>
+        </div>
+
+        <div class="arena__actions">
+          <sakuga-button variant="secondary" data-next>Next rival</sakuga-button>
+          <sakuga-button data-ask>Ask to join</sakuga-button>
+        </div>
+        <p class="arena__fine">Example players and venues. The real list lives in the app.</p>
+        <sakuga-toast class="arena__toast" duration="3.2" data-toast></sakuga-toast>
+      </section>
+
+      <!-- 4. Ladder ----------------------------------------------------------------- -->
+      <section id="ladder" class="ladder" aria-labelledby="ladder-title">
+        <header class="ladder__head">
+          <h2 id="ladder-title" class="section-title">A rank you<br />have to earn twice</h2>
+          <p>One rank per sport. Being good at futsal says nothing about your backhand.</p>
+        </header>
+
+        <div class="ladder__body">
+          <ol class="rungs" aria-label="Tiers from highest to lowest">
+            <li class="rung rung--diamond"><span class="rung__name">Diamond</span></li>
+            <li class="rung rung--platinum"><span class="rung__name">Platinum</span><span class="rung__divs">III II I</span></li>
+            <li class="rung rung--gold"><span class="rung__name">Gold</span><span class="rung__divs">III II I</span></li>
+            <li class="rung rung--silver"><span class="rung__name">Silver</span><span class="rung__divs">III II I</span></li>
+            <li class="rung rung--bronze"><span class="rung__name">Bronze</span><span class="rung__divs">III II I</span></li>
+          </ol>
+
+          <div class="notes">
+            <p class="note note--1">
+              Win three in a row on day one and you're still in Bronze. Your rank is your rating minus three times our doubt, and
+              on day one we doubt a lot.
+            </p>
+            <p class="note note--2">
+              Your first five ranked games are placement. You tell us beginner, intermediate or advanced. The games decide.
+            </p>
+            <p class="note note--3">
+              New season, no wipe. We just get a little less sure of everyone, and good players climb back fast.
+            </p>
+            <p class="note note--4">Casual games keep their own hidden rating. It only exists to set up fair friendlies.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Reliability ------------------------------------------------------------ -->
+      <section class="showup" aria-labelledby="showup-title">
+        <div class="stamp">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+              <filter id="rough">
+                <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" />
+                <feDisplacementMap in="SourceGraphic" scale="3" />
+              </filter>
+              <path id="stamp-arc" d="M100 100 m-70 0 a70 70 0 1 1 140 0 a70 70 0 1 1 -140 0" />
+            </defs>
+            <g filter="url(#rough)">
+              <circle cx="100" cy="100" r="92" />
+              <circle cx="100" cy="100" r="80" class="thin" />
+              <text class="stamp__ring"><textPath href="#stamp-arc">SHOWS UP · SHOWS UP · SHOWS UP ·</textPath></text>
+              <text x="100" y="114" class="stamp__num">98%</text>
+            </g>
+          </svg>
+        </div>
+        <div class="showup__copy">
+          <h2 id="showup-title" class="section-title">Your word is<br />on your card</h2>
+          <p>
+            Every profile shows how often that player actually turns up. Join a game and don't come, and you lose your share and the
+            number drops. Let it drop far enough and ranked games stop letting you in.
+          </p>
+          <article class="card" aria-label="Example player card">
+            <span class="card__face">NT</span>
+            <div>
+              <p class="card__name">Nina T.</p>
+              <p class="card__meta">Gold III, badminton · 61 games</p>
+            </div>
+            <span class="card__rel">98% shows up</span>
+          </article>
+        </div>
+      </section>
+
+      <!-- 6. Venues ----------------------------------------------------------------- -->
+      <section id="venues" class="venues" aria-labelledby="venues-title">
+        <div class="venues__copy">
+          <p class="slate slate--dark">For the people with the keys</p>
+          <h2 id="venues-title" class="section-title section-title--light">One book for the<br />counter, the phone<br />and the app</h2>
+          <p>
+            Walk-ins, phone bookings and app bookings sit on the same calendar. Kuya at the desk takes a walk-in, blocks the slot
+            in one tap, and the app can't sell it twice. The database won't let it.
+          </p>
+          <p>The quiet afternoon slots are where it helps most: people looking for a game don't mind 3 pm on a Tuesday.</p>
+          <sakuga-button data-go="venue">List your courts</sakuga-button>
+        </div>
+
+        <figure class="day" aria-label="Example day for one court">
+          <figcaption class="day__cap"><span>Court A</span><span>Tue</span></figcaption>
+          <div class="day__grid">
+            <span class="day__hours" aria-hidden="true">
+              <i>07</i><i>09</i><i>11</i><i>13</i><i>15</i><i>17</i><i>19</i><i>21</i><i>23</i>
+            </span>
+            <span class="blk blk--walk" style="--from: 7; --to: 9">Walk-in</span>
+            <span class="blk blk--app" style="--from: 10; --to: 11">App</span>
+            <span class="blk blk--block" style="--from: 12; --to: 13"><b>Blocked</b></span>
+            <span class="blk blk--app blk--match" style="--from: 15; --to: 16">Ranked match</span>
+            <span class="blk blk--phone" style="--from: 17; --to: 19"><b>Phone</b></span>
+            <span class="blk blk--app" style="--from: 19; --to: 21">App</span>
+            <span class="blk blk--walk" style="--from: 21; --to: 22">Walk-in</span>
+          </div>
+          <ul class="day__key">
+            <li><i class="blk--app"></i>App</li>
+            <li><i class="blk--walk"></i>Walk-in</li>
+            <li><i class="blk--phone"></i>Phone</li>
+            <li><i class="blk--block"></i>Blocked</li>
+          </ul>
+        </figure>
+      </section>
+    </main>
+
+    <!-- 7. Last page ------------------------------------------------------------------ -->
+    <footer class="end">
+      <div class="end__lines" aria-hidden="true"></div>
+      <p class="end__big">See you<br />at <span>7</span>.</p>
+      <div class="end__cta"><sakuga-button data-go="player">Find a game</sakuga-button></div>
+      <div class="end__small">
+        <span class="wordmark wordmark--small" role="img" aria-label="verzus"><svg class="wordmark__v" viewBox="0 94 698 546" aria-hidden="true" focusable="false"><path class="wordmark__red" d="M0 94L235 94L389 640L193 640Q103 367 0 94Z" /><path class="wordmark__side" d="M466 94L698 94Q590 385 506 640L389 640L351 506Z" /></svg>erzus</span>
+        <span>Hit effects: <a href="https://github.com/finktheartist/sakuga-vfx">Sakuga VFX</a> by Justin Finkelman, MIT</span>
+        <span>© 2026 verzus</span>
+      </div>
+    </footer>
+  </body>
+</html>
