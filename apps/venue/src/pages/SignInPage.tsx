@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from 'react';
-import { Navigate, useNavigate, useSearchParams } from 'react-router';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
 import { Mark } from '../components/Mark';
 import { callbackUrl, safeNext } from '../lib/next';
 import { useSession } from '../lib/session';
@@ -153,6 +153,14 @@ export function SignInPage() {
             </p>
           )}
         </div>
+        {import.meta.env.DEV && (
+          <Link
+            to="/dev-login"
+            className="mt-4 block text-center text-sm font-semibold text-ink-500 underline hover:text-ink-900"
+          >
+            Dev login (local only)
+          </Link>
+        )}
       </div>
     </div>
   );

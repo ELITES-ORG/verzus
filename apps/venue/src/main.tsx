@@ -31,6 +31,11 @@ function RequireAdmin() {
 const router = createBrowserRouter([
   { path: '/sign-in', element: <SignInPage /> },
   { path: '/auth/callback', element: <AuthCallbackPage /> },
+  // Development only: Vite replaces import.meta.env.DEV with false in production builds, so this
+  // route and the page it loads are left out of them entirely.
+  ...(import.meta.env.DEV
+    ? [{ path: '/dev-login', lazy: async () => ({ Component: (await import('./pages/DevLoginPage')).DevLoginPage }) }]
+    : []),
   {
     element: <RequireSession />,
     children: [
