@@ -20,7 +20,10 @@ export type VenueMapHandle = { flyTo: (p: LatLng, zoom?: number) => void };
 export const VenueMap = forwardRef<
   VenueMapHandle,
   { pin: LatLng | null; center: LatLng; onChange?: (p: LatLng) => void; readOnly?: boolean; className?: string }
->(function VenueMap({ pin, center, onChange, readOnly = false, className = '' }, ref) {
+>(function VenueMap(
+  { pin, center, onChange, readOnly = false, className = 'h-80 rounded-card border-[3px] border-ink-900' },
+  ref,
+) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibre | null>(null);
   const marker = useRef<Marker | null>(null);
@@ -68,14 +71,20 @@ export const VenueMap = forwardRef<
   function showPin(p: LatLng) {
     if (!map.current) return;
     if (!marker.current) {
-      marker.current = new Marker({ color: '#dd2b37', draggable: !readOnly }).setLngLat([p.lng, p.lat]).addTo(map.current);
+      marker.current = new Marker({ element: pinElement(), anchor: 'bottom', draggable: !readOnly })
+        .setLngLat([p.lng, p.lat])
+        .addTo(map.current);
+      marker.current.on('dragstart', () => marker.current?.getElement().classList.add('vz-pin--lifted'));
       marker.current.on('dragend', () => {
+        marker.current?.getElement().classList.remove('vz-pin--lifted');
+        drop(marker.current?.getElement());
         const ll = marker.current?.getLngLat();
         if (ll) changed.current?.({ lat: ll.lat, lng: ll.lng });
       });
     } else {
       marker.current.setLngLat([p.lng, p.lat]);
     }
+    drop(marker.current.getElement());
   }
 
   function place(p: LatLng) {
@@ -83,8 +92,24 @@ export const VenueMap = forwardRef<
     changed.current?.(p);
   }
 
-  return <div ref={box} className={`h-80 w-full overflow-hidden rounded-card border-[3px] border-ink-900 ${className}`} />;
+  return <div ref={box} className={`w-full overflow-hidden ${className}`} />;
 });
+
+/** The verzus pin: a red pin head with a white dot, plus a ripple on the ground (styles in index.css). */
+function pinElement(): HTMLElement {
+  const el = document.createElement('div');
+  el.className = 'vz-pin';
+  el.innerHTML = '<span class="vz-pin__ripple"></span><span class="vz-pin__body"><span class="vz-pin__head"></span></span>';
+  return el;
+}
+
+/** Replays the drop-in animation (restarting a CSS animation needs a reflow between class changes). */
+function drop(el: HTMLElement | undefined) {
+  if (!el) return;
+  el.classList.remove('vz-pin--drop');
+  void el.offsetWidth;
+  el.classList.add('vz-pin--drop');
+}
 
 /** Recolours OpenFreeMap Positron layers to the verzus palette. Unknown layers are skipped. */
 function verzusify(m: MapLibre) {

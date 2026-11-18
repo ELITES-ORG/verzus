@@ -1,3 +1,90 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* The verzus map pin (VenueMap). The marker's own element is positioned by MapLibre, so the
+   animations run on the children. */
+.vz-pin {
+  position: relative;
+  width: 34px;
+  height: 36px; /* the head's rotated tip ends at ~35.8px, so the tip sits on the anchor */
+  cursor: grab;
+}
+.vz-pin__body {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-origin: 50% 100%;
+}
+.vz-pin__head {
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: #dd2b37;
+  border: 3px solid #1d1a4a;
+  box-shadow: 0 6px 14px -4px rgb(29 26 74 / 0.55);
+}
+.vz-pin__head::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: #fff;
+}
+.vz-pin__ripple {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 44px;
+  height: 14px;
+  margin-left: -22px;
+  border-radius: 50%;
+  border: 2px solid #dd2b37;
+  opacity: 0;
+}
+.vz-pin--drop .vz-pin__body {
+  animation: vz-pin-drop 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.25);
+}
+.vz-pin--drop .vz-pin__ripple {
+  animation: vz-pin-ripple 0.8s ease-out 0.18s;
+}
+.vz-pin--lifted .vz-pin__body {
+  transform: translateY(-10px) scale(1.06);
+  transition: transform 0.15s ease-out;
+}
+@keyframes vz-pin-drop {
+  0% {
+    transform: translateY(-70px) scaleY(1.15);
+    opacity: 0;
+  }
+  55% {
+    transform: translateY(0) scaleY(0.82) scaleX(1.12);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-6px) scaleY(1.04);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes vz-pin-ripple {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vz-pin--drop .vz-pin__body,
+  .vz-pin--drop .vz-pin__ripple {
+    animation: none;
+  }
+}
