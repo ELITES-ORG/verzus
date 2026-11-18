@@ -41,13 +41,17 @@ const router = createBrowserRouter([
     children: [
       { path: '/join/:token', element: <JoinPage /> },
       { path: '/staff/:token', element: <StaffJoinPage /> },
+      // Venue onboarding is full-screen, outside the portal chrome. It carries the map library and
+      // Motion, so it loads only when an owner opens it.
+      {
+        path: '/setup/:venueId',
+        lazy: async () => ({ Component: (await import('./pages/onboarding/OnboardingPage')).OnboardingPage }),
+      },
       {
         element: <Layout />,
         children: [
           // Loaded on demand: FullCalendar is most of the bundle, and sign-in shouldn't wait for it.
           { index: true, lazy: async () => ({ Component: (await import('./pages/CalendarPage')).CalendarPage }) },
-          // The wizard carries the map library; load it only when an owner opens setup.
-          { path: 'setup/:venueId', lazy: async () => ({ Component: (await import('./pages/SetupPage')).SetupPage }) },
           { path: 'venues/:venueId/staff', lazy: async () => ({ Component: (await import('./pages/StaffPage')).StaffPage }) },
           {
             path: 'admin',
