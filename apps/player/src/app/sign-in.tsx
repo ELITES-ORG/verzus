@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { supabase } from '@/lib/supabase';
@@ -49,6 +49,13 @@ export default function SignInScreen() {
       <Pressable disabled={busy} onPress={submit} className="items-center rounded-full bg-brand-500 py-3 disabled:opacity-60">
         <Text className="font-medium text-white">{sent ? 'Verify' : 'Send code'}</Text>
       </Pressable>
+      {__DEV__ && (
+        <Link href="/dev-login" asChild>
+          <Pressable className="items-center py-2">
+            <Text className="font-medium text-ink-500 underline">Dev login (local only)</Text>
+          </Pressable>
+        </Link>
+      )}
     </View>
   );
 }
