@@ -55,6 +55,28 @@ Copy each `.env.example` to the file it names and fill in the values from `supab
 
 Leave `SUPABASE_JWT_SECRET` empty: the API checks sign-in tokens against Supabase's public keys.
 
+### Dev login (local only)
+
+Skip email codes while developing: open **http://localhost:5173/dev-login** (venue portal) or
+**http://localhost:8081/dev-login** (player app) and pick an account. The seeded accounts all use the
+password `verzus-dev`:
+
+| Account                | Role                    | What it has                                                                                                                         |
+| ---------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `admin@verzus.local`   | verzus admin            | Review queue (Kapitolyo Courts is waiting), owner invites                                                                           |
+| `owner@verzus.local`   | New venue owner         | Nothing yet: the first dev login goes through onboarding (invite, name the venue, setup wizard); later logins return to their venue |
+| `venues@verzus.local`  | Established venue owner | Makati Hoops Center and BGC Smash Hall (live), Kapitolyo Courts (in review)                                                         |
+| `staff@verzus.local`   | Venue staff             | Calendar at BGC Smash Hall                                                                                                          |
+| `player1@verzus.local` | Player                  | Badminton, Silver II                                                                                                                |
+| `player2@verzus.local` | Player                  | Badminton, Silver I                                                                                                                 |
+
+To go through owner onboarding again, run `pnpm db:reset` (this wipes local data and reseeds).
+
+They come from `supabase/seed.sql`. A fresh database gets them automatically; to add them to an
+existing local database without wiping it, run `pnpm db:seed` (safe to repeat). The seed never
+reaches the hosted project (`supabase db push` doesn't run it), the dev-login pages are left out of
+production builds, and they refuse to run against a non-local Supabase.
+
 Local phone login (player app): use `+639170000001` or `+639170000002` with code `123456`
 (see `[auth.sms.test_otp]` in `supabase/config.toml`; no SMS is sent).
 
