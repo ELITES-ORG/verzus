@@ -17,6 +17,7 @@
     "db:up": "node scripts/db-up.mjs",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
+    "db:seed": "node scripts/db-seed.mjs",
     "db:types": "pnpm --filter @verzus/db-types gen"
   },
   "devDependencies": {
