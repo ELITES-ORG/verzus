@@ -1,5 +1,5 @@
-﻿import { AnimatePresence, motion } from 'motion/react';
-import { type ChangeEvent, type ReactNode, useId, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { type ChangeEvent, type ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { photoUrl, removeVenuePhoto, uploadVenuePhoto } from '../../../lib/photos';
 import { supabase } from '../../../lib/supabase';
 import { peso, type Setup } from '../../setup/data';
@@ -67,26 +67,16 @@ export function PhotosScene({ setup, refresh, next, back }: SceneProps) {
       title="Show it off."
       intro="Optional, but venues with a cover photo get picked more. Phone photos are fine: they're resized before upload."
     >
-      <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
+      <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="space-y-8">
-          <Block label="Cover photo" hint="A wide shot of your courts. It's the big picture on your venue page.">
-            <Drop
-              url={photoUrl(v.cover_path)}
-              busy={busy === 'cover'}
-              onFiles={(f) => f[0] && replace('cover')(f[0])}
-              className="aspect-[3/1] w-full"
-              empty="Drop a cover photo, or click to choose"
-            />
-          </Block>
-          <Block label="Logo" hint="Square works best.">
-            <Drop
-              url={photoUrl(v.logo_path)}
-              busy={busy === 'logo'}
-              onFiles={(f) => f[0] && replace('logo')(f[0])}
-              className="aspect-square w-36"
-              empty="Add logo"
-            />
-          </Block>
+          <CoverAndLogo
+            coverUrl={photoUrl(v.cover_path)}
+            logoUrl={photoUrl(v.logo_path)}
+            busy={busy}
+            onCover={(f) => replace('cover')(f)}
+            onLogo={(f) => replace('logo')(f)}
+          />
+
           <Block
             label={`More photos (${v.photo_paths.length} of ${MAX_GALLERY})`}
             hint="Courts, lockers, the entrance, the parking."
@@ -121,9 +111,11 @@ export function PhotosScene({ setup, refresh, next, back }: SceneProps) {
           </Block>
         </div>
 
-        <Block label="How players will see it">
-          <PhonePreview setup={setup} />
-        </Block>
+        <aside className="lg:sticky lg:top-8">
+          <Block label="How players will see it">
+            <PhonePreview setup={setup} />
+          </Block>
+        </aside>
       </div>
 
       <SceneFooter
@@ -134,6 +126,68 @@ export function PhotosScene({ setup, refresh, next, back }: SceneProps) {
         error={error}
       />
     </Scene>
+  );
+}
+
+/** Cover + logo row; logo square is sized to the cover's rendered height. */
+function CoverAndLogo(props: {
+  coverUrl?: string | null;
+  logoUrl?: string | null;
+  busy: string | null;
+  onCover: (file: File) => void;
+  onLogo: (file: File) => void;
+}) {
+  const coverRef = useRef<HTMLDivElement>(null);
+  const [logoPx, setLogoPx] = useState<number | null>(null);
+
+  useEffect(() => {
+    const el = coverRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const sync = () => {
+      const h = Math.round(el.getBoundingClientRect().height);
+      setLogoPx(h > 0 ? h : null);
+    };
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-6">
+        <div className="min-w-0 flex-1 space-y-2">
+          <p className="text-sm font-semibold text-[#d9d6ff]">Cover photo</p>
+          <div ref={coverRef} className="relative aspect-[3/1] w-full">
+            <Drop
+              url={props.coverUrl}
+              busy={props.busy === 'cover'}
+              onFiles={(f) => f[0] && props.onCover(f[0])}
+              className="absolute inset-0 h-full w-full"
+              empty="Drop a cover photo, or click to choose"
+            />
+          </div>
+          <p className="text-sm text-[#9d97d6]">A wide shot of your courts. It's the big picture on your venue page.</p>
+        </div>
+
+        <div className="space-y-2" style={logoPx != null ? { width: logoPx } : undefined}>
+          <p className="text-sm font-semibold text-[#d9d6ff]">Logo</p>
+          <div
+            className="relative aspect-square w-32 sm:w-full"
+            style={logoPx != null ? { width: logoPx, height: logoPx } : undefined}
+          >
+            <Drop
+              url={props.logoUrl}
+              busy={props.busy === 'logo'}
+              onFiles={(f) => f[0] && props.onLogo(f[0])}
+              className="absolute inset-0 h-full w-full"
+              empty="Add logo"
+            />
+          </div>
+          <p className="text-sm text-[#9d97d6]">Square works best.</p>
+        </div>
+      </div>
+    </div>
   );
 }
 
