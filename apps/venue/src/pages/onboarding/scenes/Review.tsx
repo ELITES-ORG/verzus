@@ -92,7 +92,7 @@ export function ReviewScene({ setup, refresh, back, goTo }: SceneProps & { goTo:
               </p>
             )}
             {back && (
-              <StageButton kind="ghost" onClick={back} disabled={busy} className="w-full">
+              <StageButton kind="secondary" onClick={back} disabled={busy} className="w-full">
                 ← Back
               </StageButton>
             )}

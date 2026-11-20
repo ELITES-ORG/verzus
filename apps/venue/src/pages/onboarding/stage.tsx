@@ -91,11 +91,15 @@ export function StageSelect(props: SelectHTMLAttributes<HTMLSelectElement>) {
   );
 }
 
-type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & { kind?: 'primary' | 'ghost' | 'chip' | 'chipOn' };
+type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  kind?: 'primary' | 'secondary' | 'ghost' | 'chip' | 'chipOn';
+};
 export function StageButton({ kind = 'primary', className = '', type = 'button', children, ...rest }: BtnProps) {
   const look = {
     primary:
       'bg-[#dd2b37] text-white px-7 py-3.5 rounded-full text-base shadow-[0_10px_30px_-10px_rgba(221,43,55,0.8)] hover:bg-[#e7404b]',
+    secondary:
+      'rounded-full border-2 border-[#b8b3ff]/35 px-7 py-3.5 text-base text-[#d9d6ff] hover:border-[#b8b3ff] hover:text-white',
     ghost: 'text-[#d9d6ff] px-4 py-3 rounded-full hover:text-white hover:bg-white/5',
     chip: 'rounded-full border-2 border-[#b8b3ff]/35 px-4 py-2 text-sm text-[#d9d6ff] hover:border-[#b8b3ff] hover:text-white',
     chipOn: 'rounded-full border-2 border-[#dd2b37] bg-[#dd2b37]/15 px-4 py-2 text-sm text-white',
