@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'motion/react';
+﻿import { AnimatePresence, motion } from 'motion/react';
 import { type ChangeEvent, type ReactNode, useId, useState } from 'react';
 import { photoUrl, removeVenuePhoto, uploadVenuePhoto } from '../../../lib/photos';
 import { supabase } from '../../../lib/supabase';
@@ -67,7 +67,7 @@ export function PhotosScene({ setup, refresh, next, back }: SceneProps) {
       title="Show it off."
       intro="Optional, but venues with a cover photo get picked more. Phone photos are fine: they're resized before upload."
     >
-      <div className="grid gap-10 lg:grid-cols-[1fr_300px]">
+      <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
         <div className="space-y-8">
           <Block label="Cover photo" hint="A wide shot of your courts. It's the big picture on your venue page.">
             <Drop
@@ -209,8 +209,8 @@ function PhonePreview({ setup }: { setup: Setup }) {
   const cover = photoUrl(v.cover_path);
   const logo = photoUrl(v.logo_path);
   return (
-    <div className="mx-auto w-[260px] rounded-[2.2rem] border-[6px] border-[#2b2768] bg-[#f6f5fb] p-2 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.6)]">
-      <div className="overflow-hidden rounded-[1.6rem] bg-white">
+    <div className="mx-auto w-full max-w-[340px] rounded-[2.4rem] border-[6px] border-[#2b2768] bg-[#f6f5fb] p-2.5 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.6)]">
+      <div className="overflow-hidden rounded-[1.8rem] bg-white">
         <div className="relative aspect-[16/10] bg-[#e8e6f5]">
           {cover ? (
             <motion.img
@@ -222,9 +222,9 @@ function PhonePreview({ setup }: { setup: Setup }) {
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="grid h-full place-items-center text-xs text-[#8580b0]">Cover photo</span>
+            <span className="grid h-full place-items-center text-sm text-[#8580b0]">Cover photo</span>
           )}
-          <div className="absolute -bottom-6 left-3 h-12 w-12 overflow-hidden rounded-xl border-[3px] border-white bg-[#dcd9ff] shadow">
+          <div className="absolute -bottom-7 left-4 h-14 w-14 overflow-hidden rounded-xl border-[3px] border-white bg-[#dcd9ff] shadow">
             {logo && (
               <motion.img
                 key={logo}
@@ -237,15 +237,15 @@ function PhonePreview({ setup }: { setup: Setup }) {
             )}
           </div>
         </div>
-        <div className="space-y-1 px-3 pb-4 pt-8 text-[#1d1a4a]">
-          <p className="font-bold leading-tight">{v.name}</p>
-          <p className="text-xs text-[#6f6a9c]">{[v.address, v.city].filter(Boolean).join(', ')}</p>
+        <div className="space-y-1.5 px-4 pb-5 pt-10 text-[#1d1a4a]">
+          <p className="text-lg font-bold leading-tight">{v.name}</p>
+          <p className="text-sm text-[#6f6a9c]">{[v.address, v.city].filter(Boolean).join(', ')}</p>
           {cheapest != null && (
-            <p className="pt-1 text-xs font-semibold">
+            <p className="pt-1 text-sm font-semibold">
               {active.length} court{active.length > 1 ? 's' : ''} · from {peso(cheapest)}/hour
             </p>
           )}
-          <span className="mt-2 block rounded-full bg-[#dd2b37] py-1.5 text-center text-xs font-bold text-white">
+          <span className="mt-3 block rounded-full bg-[#dd2b37] py-2.5 text-center text-sm font-bold text-white">
             Book a court
           </span>
         </div>
