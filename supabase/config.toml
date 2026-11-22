@@ -252,9 +252,11 @@ otp_expiry = 3600
 subject = "Your verzus sign-in code"
 content_path = "./supabase/templates/sign_in.html"
 
+# Confirms a new account (players and venue owners register with a password). Hosted projects
+# don't read this file: paste the same subject and HTML into the dashboard (Authentication > Emails).
 [auth.email.template.confirmation]
-subject = "Your verzus sign-in code"
-content_path = "./supabase/templates/sign_in.html"
+subject = "Confirm your verzus account"
+content_path = "./supabase/templates/confirm.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]

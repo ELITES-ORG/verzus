@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light only" />
+    <title>Confirm your verzus account</title>
+  </head>
+  <!--
+    The email that confirms a new account (players and venue owners). Same look as the landing page:
+    ink outlines, a lavender offset shadow, green for the one thing to do. Tables and inline styles
+    only, because email apps ignore most CSS; no SVG (Gmail drops it), so the logo is text.
+    Supabase fills in {{ .ConfirmationURL }} and {{ .Email }}.
+  -->
+  <body style="margin:0;padding:0;background:#f6f5fb;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">One tap and you're in. Your rival is waiting.</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f5fb;padding:36px 14px;">
+      <tr>
+        <td align="center">
+          <!-- The card with its offset shadow: an outer lavender table nudged right and down. -->
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+            <tr>
+              <td style="padding:0 7px 8px 0;background:#b8b3ff;border-radius:16px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:3px solid #1d1a4a;border-radius:16px;">
+                  <!-- Header: the wordmark on ink, with the issue line. -->
+                  <tr>
+                    <td style="background:#1d1a4a;border-radius:12px 12px 0 0;padding:20px 28px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="font:900 28px/1 'Arial Black',Arial,Helvetica,sans-serif;color:#ffffff;letter-spacing:-1px;">
+                            <span style="color:#22c55e;">v</span>erzus
+                          </td>
+                          <td align="right" style="font:12px/1 'Courier New',Courier,monospace;color:#b8b3ff;letter-spacing:1px;">
+                            ch.00 / sign-up
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <!-- Body -->
+                  <tr>
+                    <td style="padding:34px 28px 10px;font:16px/1.6 Arial,Helvetica,sans-serif;color:#1d1a4a;">
+                      <p style="margin:0 0 10px;font:12px/1 'Courier New',Courier,monospace;color:#6f6a9c;letter-spacing:1px;">
+                        <span style="color:#15803d;">&#9679;</span> ONE LAST STEP
+                      </p>
+                      <h1 style="margin:0 0 16px;font:900 32px/1.1 'Arial Black',Arial,Helvetica,sans-serif;letter-spacing:-0.5px;color:#1d1a4a;">
+                        You're almost <span style="color:#15803d;">in.</span>
+                      </h1>
+                      <p style="margin:0 0 28px;">
+                        Confirm that <strong>{{ .Email }}</strong> is yours, and your verzus account is ready: courts to book,
+                        rivals around your level, a rank to earn.
+                      </p>
+                    </td>
+                  </tr>
+                  <!-- The button: green (go), ink outline, lavender shadow, like the site's buttons. -->
+                  <tr>
+                    <td style="padding:0 28px 30px;">
+                      <table role="presentation" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="padding:0 5px 6px 0;background:#b8b3ff;border-radius:12px;">
+                            <a
+                              href="{{ .ConfirmationURL }}"
+                              style="display:inline-block;background:#15803d;border:3px solid #1d1a4a;border-radius:12px;padding:15px 30px;font:900 17px/1 'Arial Black',Arial,Helvetica,sans-serif;color:#ffffff;text-decoration:none;letter-spacing:0.3px;"
+                              >Confirm my email &rarr;</a
+                            >
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <!-- The ticket stub: what happens next. -->
+                  <tr>
+                    <td style="padding:0 28px 28px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px dashed #b8b3ff;border-radius:12px;">
+                        <tr>
+                          <td style="padding:16px 18px;font:14px/1.6 Arial,Helvetica,sans-serif;color:#1d1a4a;">
+                            <span style="font:12px/1 'Courier New',Courier,monospace;color:#6f6a9c;letter-spacing:1px;">NEXT</span><br />
+                            Players: sign in with your username or email, then find a game.<br />
+                            Venue owners: name your venue and list your courts. We review it before it goes live.
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <!-- Fallback link and the reassurance. -->
+                  <tr>
+                    <td style="padding:0 28px 30px;font:13px/1.6 Arial,Helvetica,sans-serif;color:#6f6a9c;border-top:2px solid #ecebf7;">
+                      <p style="margin:22px 0 8px;">Button not working? Open this link instead:</p>
+                      <p style="margin:0 0 18px;word-break:break-all;">
+                        <a href="{{ .ConfirmationURL }}" style="color:#5a4fd8;">{{ .ConfirmationURL }}</a>
+                      </p>
+                      <p style="margin:0;">
+                        Didn't sign up for verzus? You can ignore this email. Nothing happens unless the link is opened.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:20px 0 0;font:12px/1.5 'Courier New',Courier,monospace;color:#6f6a9c;">
+                See you at <span style="color:#15803d;font-weight:700;">7</span>. &middot; verzus
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
