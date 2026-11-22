@@ -88,8 +88,12 @@ function storyboard() {
   const fill = $<SakugaProgressElement>('[data-fill]');
   if (fill) {
     once(fill, () => {
+      wake(fill);
       fill.set(0.5);
-      setTimeout(() => fill.set(1), 1300);
+      setTimeout(() => {
+        wake(fill);
+        fill.set(1);
+      }, 1300);
     });
   }
 
@@ -199,10 +203,76 @@ function arena() {
   ask?.addEventListener('click', () => {
     const name = $('[data-rival-name]')?.textContent ?? '';
     if (!toast || name === 'Nobody') return;
+    wake(toast);
     toast.show(`Request sent to ${name}`);
   });
 
   render(false);
+}
+
+// --------------------------------------------------------------- idle sleep
+
+/**
+ * Lets the effects loop rest. Every Sakuga control keeps a per-frame callback on the library's one
+ * shared loop for as long as it is on the page, so the loop ran every frame forever, restyling each
+ * control even when nothing moved: on a phone, that is the scroll lag. The library's rule is that
+ * nothing animates at rest, so a control sleeps while it is off screen or untouched for a few
+ * seconds, and wakes before anything can move it. Sleeping and waking use the control's own
+ * lifecycle callbacks, which only remove and re-add that per-frame callback (the control is not
+ * rebuilt); the vendored files stay untouched.
+ */
+type Sleeper = HTMLElement & { connectedCallback?(): void; disconnectedCallback?(): void };
+const SETTLE_MS = 4000; // long enough for any press, hover or fill to finish settling
+const naps = new Map<Sleeper, { seen: boolean; recent: boolean; awake: boolean; timer?: number }>();
+
+function nap(el: Sleeper) {
+  const s = naps.get(el);
+  if (!s) return;
+  const want = s.seen && s.recent;
+  if (want === s.awake) return;
+  s.awake = want;
+  if (want) el.connectedCallback?.();
+  else el.disconnectedCallback?.();
+}
+
+/** Keeps `el` animating for a few seconds: call before changing it from code. */
+function wake(el: Element | null) {
+  const s = el && naps.get(el as Sleeper);
+  if (!s) return;
+  s.recent = true;
+  clearTimeout(s.timer);
+  s.timer = window.setTimeout(() => {
+    s.recent = false;
+    nap(el as Sleeper);
+  }, SETTLE_MS);
+  nap(el as Sleeper);
+}
+
+function sleepWhenIdle() {
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        const s = naps.get(e.target as Sleeper);
+        if (!s) continue;
+        s.seen = e.isIntersecting;
+        if (s.seen) wake(e.target);
+        else nap(e.target as Sleeper);
+      }
+    },
+    // Wake a little before a control scrolls in, so it's ready when it arrives.
+    { rootMargin: '120px 0px' },
+  );
+  for (const el of $$<Sleeper>(
+    'sakuga-button, sakuga-radio, sakuga-progress, sakuga-checkbox, sakuga-tabs, sakuga-slider, sakuga-toast',
+  )) {
+    naps.set(el, { seen: true, recent: true, awake: true });
+    // Anything a person does to a control wakes it first and keeps it awake while it goes on
+    // (hover, press, a long slider drag, focus, keys).
+    for (const type of ['pointerenter', 'pointerdown', 'pointermove', 'focusin', 'keydown', 'input'])
+      el.addEventListener(type, () => wake(el), { passive: true });
+    io.observe(el);
+    wake(el);
+  }
 }
 
 // ------------------------------------------------------------------- helpers
@@ -227,3 +297,6 @@ if (window.SakugaFX) theme(window.SakugaFX);
 splash();
 storyboard();
 arena();
+// After the controls built from <option>s have finished connecting (they wait for the parser).
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sleepWhenIdle, { once: true });
+else sleepWhenIdle();

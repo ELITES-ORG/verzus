@@ -53,6 +53,14 @@ body {
 html {
   overflow-x: clip;
 }
+/* Each Sakuga control draws its effects on a canvas 160px bigger than itself on every side. Near
+   the screen edge that canvas reaches past it, and phone browsers then lay the page out wider than
+   the screen and zoom it all out to fit (the html clip above doesn't stop that). Clipping the
+   page's own boxes keeps the page exactly as wide as the screen; effects just end at the edge. */
+main,
+.end {
+  overflow-x: clip;
+}
 
 h1,
 h2,
@@ -950,7 +958,6 @@ sakuga-checkbox::part(label) {
   width: 100%;
   height: auto;
   transform: rotate(-12deg);
-  mix-blend-mode: multiply;
 }
 .stamp circle {
   fill: none;
