@@ -6,18 +6,19 @@ import { motion, type Transition } from 'motion/react';
  * motion, MotionConfig in the onboarding shell turns these into instant final states.
  */
 
-const LAV = '#b8b3ff';
-const RED = '#dd2b37';
+// Colours are theme classes: lines in violet (stroke-violet), accents in green (stroke-accent,
+// fill-accent), fills that should read as "background" in canvas. The logo uses its own colours.
 const draw = (delay = 0, duration = 0.7): Transition => ({
   pathLength: { delay, duration, ease: [0.65, 0, 0.35, 1] },
   opacity: { delay, duration: 0.01 },
 });
-const line = { fill: 'none', stroke: LAV, strokeWidth: 3.2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
+const line = { fill: 'none', strokeWidth: 3.2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
 const Draw = (props: React.ComponentProps<typeof motion.path> & { delay?: number; dur?: number }) => {
-  const { delay = 0, dur = 0.7, ...rest } = props;
+  const { delay = 0, dur = 0.7, className = 'stroke-violet', ...rest } = props;
   return (
     <motion.path
       {...line}
+      className={className}
       initial={{ pathLength: 0, opacity: 0 }}
       animate={{ pathLength: 1, opacity: 1 }}
       transition={draw(delay, dur)}
@@ -28,7 +29,7 @@ const Draw = (props: React.ComponentProps<typeof motion.path> & { delay?: number
 
 function Frame({ children, label }: { children: React.ReactNode; label: string }) {
   return (
-    <svg viewBox="0 0 120 120" className="h-24 w-24 sm:h-28 sm:w-28" role="img" aria-label={label}>
+    <svg viewBox="0 0 120 120" className="h-14 w-14 shrink-0 sm:h-28 sm:w-28" role="img" aria-label={label}>
       {children}
     </svg>
   );
@@ -42,14 +43,14 @@ export function WelcomeIcon() {
       <g transform="translate(14 26) scale(0.132)">
         <motion.path
           d="M0 94L235 94L389 640L193 640Q103 367 0 94Z"
-          fill={RED}
+          className="fill-mark"
           initial={{ x: -520, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ ...spring, delay: 0.15 }}
         />
         <motion.path
           d="M466 94L698 94Q590 385 506 640L389 640L351 506Z"
-          fill={LAV}
+          className="fill-violet"
           initial={{ x: 520, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ ...spring, delay: 0.15 }}
@@ -67,7 +68,7 @@ export function WelcomeIcon() {
           y1={y1}
           x2={x2}
           y2={y2}
-          stroke={RED}
+          className="stroke-accent"
           strokeWidth={3.2}
           strokeLinecap="round"
           initial={{ pathLength: 0, opacity: 0 }}
@@ -90,8 +91,8 @@ export function BasicsIcon() {
         animate={{ rotate: 0, y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 220, damping: 9, delay: 0.25 }}
       >
-        <rect x="18" y="28" width="84" height="38" rx="6" fill="#1d1a4a" stroke={LAV} strokeWidth={3.2} />
-        <Draw d="M30 41H78" delay={0.6} dur={0.35} stroke={RED} />
+        <rect x="18" y="28" width="84" height="38" rx="6" className="fill-canvas stroke-violet" strokeWidth={3.2} />
+        <Draw d="M30 41H78" delay={0.6} dur={0.35} className="stroke-accent" />
         <Draw d="M30 53H62" delay={0.75} dur={0.3} />
       </motion.g>
     </Frame>
@@ -110,7 +111,7 @@ export function LocationIcon() {
         rx="16"
         ry="6"
         fill="none"
-        stroke={RED}
+        className="stroke-accent"
         strokeWidth={2.4}
         initial={{ scale: 0.2, opacity: 0 }}
         animate={{ scale: [0.2, 1.3], opacity: [0, 0.9, 0] }}
@@ -121,7 +122,11 @@ export function LocationIcon() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 380, damping: 14, delay: 0.75 }}
       >
-        <path d="M60 84C60 84 40 62 40 48A20 20 0 0 1 80 48C80 62 60 84 60 84Z" fill={RED} stroke="#1d1a4a" strokeWidth={2.4} />
+        <path
+          d="M60 84C60 84 40 62 40 48A20 20 0 0 1 80 48C80 62 60 84 60 84Z"
+          className="fill-accent stroke-canvas"
+          strokeWidth={2.4}
+        />
         <circle cx="60" cy="48" r="7" fill="#ffffff" />
       </motion.g>
     </Frame>
@@ -134,14 +139,14 @@ export function CourtsIcon() {
     <Frame label="Courts">
       <Draw d="M22 104L98 104L84 34L36 34Z" dur={0.8} />
       <Draw d="M60 34V104M29 69H91" delay={0.45} dur={0.45} />
-      <Draw d="M26 62V76M94 62V76" delay={0.7} dur={0.25} stroke={RED} />
+      <Draw d="M26 62V76M94 62V76" delay={0.7} dur={0.25} className="stroke-accent" />
       <motion.g
         initial={{ x: -34, y: 6, opacity: 0, rotate: -30 }}
         animate={{ x: [-34, 0, 34], y: [6, -30, 6], opacity: [0, 1, 1], rotate: [-30, 0, 30] }}
         transition={{ delay: 0.95, duration: 1.1, ease: 'easeInOut', times: [0, 0.5, 1] }}
       >
         <circle cx="60" cy="56" r="4.5" fill="#ffffff" />
-        <path d="M57 52L53 44M60 51.5V43M63 52L67 44" stroke={LAV} strokeWidth={2} strokeLinecap="round" />
+        <path d="M57 52L53 44M60 51.5V43M63 52L67 44" className="stroke-violet" strokeWidth={2} strokeLinecap="round" />
       </motion.g>
     </Frame>
   );
@@ -160,7 +165,7 @@ export function HoursIcon() {
           y1="25"
           x2="60"
           y2="31"
-          stroke={LAV}
+          className="stroke-violet"
           strokeWidth={3.2}
           strokeLinecap="round"
           style={{ originX: '60px', originY: '60px', rotate: a }}
@@ -174,7 +179,7 @@ export function HoursIcon() {
         y1="60"
         x2="60"
         y2="36"
-        stroke={LAV}
+        className="stroke-violet"
         strokeWidth={3.6}
         strokeLinecap="round"
         style={{ originX: '60px', originY: '60px' }}
@@ -187,7 +192,7 @@ export function HoursIcon() {
         y1="60"
         x2="60"
         y2="28"
-        stroke={RED}
+        className="stroke-accent"
         strokeWidth={3.2}
         strokeLinecap="round"
         style={{ originX: '60px', originY: '60px' }}
@@ -195,7 +200,7 @@ export function HoursIcon() {
         animate={{ rotate: 720 + 120 }}
         transition={{ type: 'spring', stiffness: 30, damping: 10, delay: 0.6 }}
       />
-      <circle cx="60" cy="60" r="4" fill={RED} />
+      <circle cx="60" cy="60" r="4" className="fill-accent" />
     </Frame>
   );
 }
@@ -210,7 +215,7 @@ export function PhotosIcon() {
         cx="60"
         cy="68"
         r="6"
-        fill={RED}
+        className="fill-accent"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.9, type: 'spring', stiffness: 500, damping: 15 }}
@@ -237,7 +242,7 @@ export function ReviewIcon() {
         cy="92"
         r="20"
         fill="none"
-        stroke={RED}
+        className="stroke-accent"
         strokeWidth={4}
         initial={{ scale: 0.6, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -246,7 +251,7 @@ export function ReviewIcon() {
       <motion.path
         d="M52 92l6 6 12-13"
         fill="none"
-        stroke={RED}
+        className="stroke-accent"
         strokeWidth={4}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -259,8 +264,8 @@ export function ReviewIcon() {
         animate={{ y: [-10, 22, -6] }}
         transition={{ delay: 0.2, duration: 0.7, times: [0, 0.55, 1], ease: ['easeIn', 'easeOut'] }}
       >
-        <path d="M50 18H70V40H50Z" fill="#1d1a4a" stroke={LAV} strokeWidth={3.2} strokeLinejoin="round" />
-        <path d="M40 40H80V52H40Z" fill="#1d1a4a" stroke={LAV} strokeWidth={3.2} strokeLinejoin="round" />
+        <path d="M50 18H70V40H50Z" className="fill-canvas stroke-violet" strokeWidth={3.2} strokeLinejoin="round" />
+        <path d="M40 40H80V52H40Z" className="fill-canvas stroke-violet" strokeWidth={3.2} strokeLinejoin="round" />
       </motion.g>
     </Frame>
   );

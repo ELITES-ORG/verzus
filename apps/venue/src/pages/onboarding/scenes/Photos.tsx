@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { type ChangeEvent, type ReactNode, useEffect, useId, useRef, useState } from 'react';
+import { type ChangeEvent, type ReactNode, useId, useState } from 'react';
 import { photoUrl, removeVenuePhoto, uploadVenuePhoto } from '../../../lib/photos';
 import { supabase } from '../../../lib/supabase';
+import { fullAddress } from '../../../lib/venues';
 import { peso, type Setup } from '../../setup/data';
 import { PhotosIcon } from '../icons';
 import { Block, Scene, SceneFooter, type SceneProps } from '../stage';
@@ -65,23 +66,30 @@ export function PhotosScene({ setup, refresh, next, back }: SceneProps) {
       eyebrow="Step 5 · Photos"
       icon={<PhotosIcon />}
       title="Show it off."
-      intro="Optional, but venues with a cover photo get picked more. Phone photos are fine: they're resized before upload."
+      intro="Optional, but a cover photo gets you picked more."
     >
       <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="space-y-8">
-          <CoverAndLogo
-            coverUrl={photoUrl(v.cover_path)}
-            logoUrl={photoUrl(v.logo_path)}
-            busy={busy}
-            onCover={(f) => replace('cover')(f)}
-            onLogo={(f) => replace('logo')(f)}
-          />
+          <Block>
+            <VenueHeader
+              name={v.name}
+              place={[v.city, v.province].filter(Boolean).join(', ')}
+              coverUrl={photoUrl(v.cover_path)}
+              logoUrl={photoUrl(v.logo_path)}
+              busy={busy}
+              onCover={(f) => replace('cover')(f)}
+              onLogo={(f) => replace('logo')(f)}
+            />
+          </Block>
 
-          <Block
-            label={`More photos (${v.photo_paths.length} of ${MAX_GALLERY})`}
-            hint="Courts, lockers, the entrance, the parking."
-          >
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+          <Block>
+            <div className="flex items-baseline justify-between">
+              <p className="text-sm font-semibold text-fg-2">More photos</p>
+              <p className="text-sm text-fg-3">
+                {v.photo_paths.length} of {MAX_GALLERY}
+              </p>
+            </div>
+            <div className="grid grid-cols-4 gap-2 sm:gap-3">
               <AnimatePresence initial={false}>
                 {v.photo_paths.map((p) => (
                   <motion.figure
@@ -90,28 +98,39 @@ export function PhotosScene({ setup, refresh, next, back }: SceneProps) {
                     initial={{ opacity: 0, scale: 0.85 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.85 }}
-                    className="group relative aspect-[4/3] overflow-hidden rounded-2xl"
+                    className="relative aspect-square overflow-hidden rounded-control"
                   >
                     <img src={photoUrl(p) ?? ''} alt="" className="h-full w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeFromGallery(p)}
                       disabled={busy !== null}
-                      className="absolute right-1.5 top-1.5 rounded-full bg-[#16133d]/80 px-2.5 py-1 text-xs font-semibold text-white opacity-0 transition group-hover:opacity-100 focus:opacity-100"
+                      aria-label="Remove this photo"
+                      className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-xs font-bold text-white hover:bg-danger hover:text-surface"
                     >
-                      Remove
+                      ✕
                     </button>
                   </motion.figure>
                 ))}
               </AnimatePresence>
               {v.photo_paths.length < MAX_GALLERY && (
-                <Drop multiple busy={busy === 'gallery'} onFiles={addToGallery} className="aspect-[4/3]" empty="+ Add" />
+                <Drop
+                  multiple
+                  busy={busy === 'gallery'}
+                  onFiles={addToGallery}
+                  className="aspect-square rounded-control"
+                  empty={<span className="text-2xl leading-none">+</span>}
+                  label="Add photos"
+                />
               )}
             </div>
+            <p className="text-sm text-fg-3">Courts, entrance, lockers, parking.</p>
           </Block>
         </div>
 
-        <aside className="lg:sticky lg:top-8">
+        {/* Wider screens: the venue page inside a phone. Phones skip it: the header above already
+            shows the cover and logo as players will see them. */}
+        <aside className="hidden lg:sticky lg:top-8 lg:block">
           <Block label="How players will see it">
             <PhonePreview setup={setup} />
           </Block>
@@ -129,62 +148,50 @@ export function PhotosScene({ setup, refresh, next, back }: SceneProps) {
   );
 }
 
-/** Cover + logo row; logo square is sized to the cover's rendered height. */
-function CoverAndLogo(props: {
+/**
+ * The top of the venue's page, as players will see it: the cover photo, the logo overlapping its
+ * bottom corner, and the venue's name beside the logo. Tap the cover or the logo to add or change it.
+ */
+function VenueHeader(props: {
+  name: string;
+  place: string;
   coverUrl?: string | null;
   logoUrl?: string | null;
   busy: string | null;
   onCover: (file: File) => void;
   onLogo: (file: File) => void;
 }) {
-  const coverRef = useRef<HTMLDivElement>(null);
-  const [logoPx, setLogoPx] = useState<number | null>(null);
-
-  useEffect(() => {
-    const el = coverRef.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const sync = () => {
-      const h = Math.round(el.getBoundingClientRect().height);
-      setLogoPx(h > 0 ? h : null);
-    };
-    sync();
-    const ro = new ResizeObserver(sync);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
   return (
-    <div className="space-y-2">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-6">
-        <div className="min-w-0 flex-1 space-y-2">
-          <p className="text-sm font-semibold text-[#d9d6ff]">Cover photo</p>
-          <div ref={coverRef} className="relative aspect-[3/1] w-full">
-            <Drop
-              url={props.coverUrl}
-              busy={props.busy === 'cover'}
-              onFiles={(f) => f[0] && props.onCover(f[0])}
-              className="absolute inset-0 h-full w-full"
-              empty="Drop a cover photo, or click to choose"
-            />
-          </div>
-          <p className="text-sm text-[#9d97d6]">A wide shot of your courts. It's the big picture on your venue page.</p>
+    <div>
+      <Drop
+        url={props.coverUrl}
+        busy={props.busy === 'cover'}
+        onFiles={(f) => f[0] && props.onCover(f[0])}
+        className="aspect-[2/1] w-full rounded-panel sm:aspect-[3/1]"
+        label={props.coverUrl ? 'Change the cover photo' : 'Add a cover photo'}
+        badge="Change cover"
+        empty={
+          <span className="block">
+            <span className="block text-base text-fg">+ Cover photo</span>
+            <span className="mt-1 block text-sm font-normal text-fg-3">A wide shot of your courts</span>
+          </span>
+        }
+      />
+      <div className="flex items-end gap-3 px-3">
+        {/* The logo overlaps the cover's bottom edge, with a ring in the page colour. */}
+        <div className="-mt-10 h-20 w-20 shrink-0 rounded-panel bg-canvas p-1">
+          <Drop
+            url={props.logoUrl}
+            busy={props.busy === 'logo'}
+            onFiles={(f) => f[0] && props.onLogo(f[0])}
+            className="h-full w-full rounded-control bg-surface-2"
+            label={props.logoUrl ? 'Change the logo' : 'Add a logo'}
+            empty={<span className="text-xs leading-tight">+ Logo</span>}
+          />
         </div>
-
-        <div className="space-y-2" style={logoPx != null ? { width: logoPx } : undefined}>
-          <p className="text-sm font-semibold text-[#d9d6ff]">Logo</p>
-          <div
-            className="relative aspect-square w-32 sm:w-full"
-            style={logoPx != null ? { width: logoPx, height: logoPx } : undefined}
-          >
-            <Drop
-              url={props.logoUrl}
-              busy={props.busy === 'logo'}
-              onFiles={(f) => f[0] && props.onLogo(f[0])}
-              className="absolute inset-0 h-full w-full"
-              empty="Add logo"
-            />
-          </div>
-          <p className="text-sm text-[#9d97d6]">Square works best.</p>
+        <div className="min-w-0 pb-1">
+          <p className="truncate text-lg font-bold leading-tight text-fg">{props.name}</p>
+          {props.place && <p className="truncate text-sm text-fg-3">{props.place}</p>}
         </div>
       </div>
     </div>
@@ -199,6 +206,10 @@ function Drop(props: {
   onFiles: (files: File[]) => void;
   className?: string;
   empty: ReactNode;
+  /** What tapping it does, for screen readers, e.g. "Add a logo". */
+  label: string;
+  /** Shown in a corner once there is a photo, e.g. "Change cover". */
+  badge?: string;
 }) {
   const id = useId();
   const [over, setOver] = useState(false);
@@ -219,8 +230,12 @@ function Drop(props: {
         setOver(false);
         props.onFiles([...e.dataTransfer.files].filter((f) => f.type.startsWith('image/')));
       }}
-      className={`relative grid cursor-pointer place-items-center overflow-hidden rounded-2xl border-2 border-dashed text-sm font-semibold transition ${
-        over ? 'border-[#dd2b37] bg-[#dd2b37]/10 text-white' : 'border-[#b8b3ff]/35 text-[#d9d6ff] hover:border-[#b8b3ff]'
+      className={`relative grid cursor-pointer place-items-center overflow-hidden border-2 text-sm font-semibold transition ${
+        over
+          ? 'border-dashed border-accent bg-accent-soft text-fg'
+          : props.url
+            ? 'border-transparent'
+            : 'border-dashed border-line-strong text-fg-2 hover:border-violet'
       } ${props.busy ? 'pointer-events-none' : ''} ${props.className ?? ''}`}
     >
       <AnimatePresence mode="wait">
@@ -241,16 +256,29 @@ function Drop(props: {
           </motion.span>
         )}
       </AnimatePresence>
+      {props.url && props.badge && !props.busy && (
+        <span className="absolute right-2 top-2 rounded-chip bg-black/60 px-3 py-1 text-xs font-semibold text-white">
+          {props.badge}
+        </span>
+      )}
       {props.busy && (
-        <span className="absolute inset-0 grid place-items-center bg-[#16133d]/70">
+        <span className="absolute inset-0 grid place-items-center bg-canvas/70">
           <motion.span
-            className="h-8 w-8 rounded-full border-[3px] border-[#b8b3ff]/30 border-t-[#dd2b37]"
+            className="h-8 w-8 rounded-full border-[3px] border-line-strong border-t-accent"
             animate={{ rotate: 360 }}
             transition={{ repeat: Number.POSITIVE_INFINITY, duration: 0.8, ease: 'linear' }}
           />
         </span>
       )}
-      <input id={id} type="file" accept="image/*" multiple={props.multiple} className="sr-only" onChange={pick} />
+      <input
+        id={id}
+        type="file"
+        accept="image/*"
+        multiple={props.multiple}
+        aria-label={props.label}
+        className="sr-only"
+        onChange={pick}
+      />
     </label>
   );
 }
@@ -263,9 +291,9 @@ function PhonePreview({ setup }: { setup: Setup }) {
   const cover = photoUrl(v.cover_path);
   const logo = photoUrl(v.logo_path);
   return (
-    <div className="mx-auto w-full max-w-[340px] rounded-[2.4rem] border-[6px] border-[#2b2768] bg-[#f6f5fb] p-2.5 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.6)]">
-      <div className="overflow-hidden rounded-[1.8rem] bg-white">
-        <div className="relative aspect-[16/10] bg-[#e8e6f5]">
+    <div className="mx-auto w-full max-w-[340px] rounded-[2.4rem] border-[6px] border-[#16142f] bg-canvas p-2.5 shadow-[0_30px_60px_-20px_rgb(var(--scrim)/0.5)]">
+      <div className="overflow-hidden rounded-[1.8rem] bg-surface">
+        <div className="relative aspect-[16/10] bg-surface-2">
           {cover ? (
             <motion.img
               key={cover}
@@ -276,9 +304,9 @@ function PhonePreview({ setup }: { setup: Setup }) {
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="grid h-full place-items-center text-sm text-[#8580b0]">Cover photo</span>
+            <span className="grid h-full place-items-center text-sm text-fg-3">Cover photo</span>
           )}
-          <div className="absolute -bottom-7 left-4 h-14 w-14 overflow-hidden rounded-xl border-[3px] border-white bg-[#dcd9ff] shadow">
+          <div className="absolute -bottom-7 left-4 h-14 w-14 overflow-hidden rounded-control border-[3px] border-surface bg-surface-3 shadow">
             {logo && (
               <motion.img
                 key={logo}
@@ -291,15 +319,15 @@ function PhonePreview({ setup }: { setup: Setup }) {
             )}
           </div>
         </div>
-        <div className="space-y-1.5 px-4 pb-5 pt-10 text-[#1d1a4a]">
+        <div className="space-y-1.5 px-4 pb-5 pt-10 text-fg">
           <p className="text-lg font-bold leading-tight">{v.name}</p>
-          <p className="text-sm text-[#6f6a9c]">{[v.address, v.city].filter(Boolean).join(', ')}</p>
+          <p className="text-sm text-fg-3">{fullAddress(v)}</p>
           {cheapest != null && (
             <p className="pt-1 text-sm font-semibold">
               {active.length} court{active.length > 1 ? 's' : ''} · from {peso(cheapest)}/hour
             </p>
           )}
-          <span className="mt-3 block rounded-full bg-[#dd2b37] py-2.5 text-center text-sm font-bold text-white">
+          <span className="mt-3 block rounded-control bg-accent py-2.5 text-center text-sm font-bold text-on-accent">
             Book a court
           </span>
         </div>

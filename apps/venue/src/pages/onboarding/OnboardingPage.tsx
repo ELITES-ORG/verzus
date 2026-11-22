@@ -2,6 +2,7 @@ import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { Mark } from '../../components/Mark';
+import { ThemeSwitch } from '../../components/ThemeSwitch';
 import { progress, type Setup, useSetup } from '../setup/data';
 import { BasicsScene } from './scenes/Basics';
 import { CourtsScene } from './scenes/Courts';
@@ -48,7 +49,8 @@ function resumeAt(s: Setup): StepId {
   const d = progress(s);
   const fresh = !d.location && !s.venue.description && !s.venue.phone;
   if (s.venue.status === 'draft' && fresh) return 'welcome';
-  if (!d.location) return 'basics';
+  // Basics can be unfinished after later steps are done (e.g. the phone became required later).
+  if (!d.basics || !d.location) return 'basics';
   if (!d.courts) return 'courts';
   if (!d.hours) return 'hours';
   return s.venue.status === 'draft' && !s.venue.cover_path ? 'photos' : 'review';
@@ -90,32 +92,36 @@ export function OnboardingPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="relative min-h-screen overflow-x-hidden bg-[#16133d] text-white">
-        {/* Stage lighting: a lavender glow and screentone dots, fixed behind the scenes. */}
+      {/* overflow-x-clip, not hidden: hidden would make this div a scroll box of its own. */}
+      <div className="theme-scheme relative min-h-screen overflow-x-clip bg-canvas text-fg">
+        {/* Stage lighting: two soft glows, fixed behind the scenes. No pattern: it made text harder to read. */}
         <div
           aria-hidden="true"
           className="pointer-events-none fixed inset-0"
           style={{
             background:
-              'radial-gradient(60rem 40rem at 85% -10%, rgba(184,179,255,0.18), transparent 60%), radial-gradient(40rem 30rem at -10% 110%, rgba(221,43,55,0.12), transparent 60%), radial-gradient(rgba(184,179,255,0.10) 1.2px, transparent 1.5px) 0 0 / 14px 14px',
+              'radial-gradient(60rem 40rem at 85% -10%, rgb(var(--violet) / 0.12), transparent 60%), radial-gradient(40rem 30rem at -10% 110%, rgb(var(--accent) / 0.07), transparent 60%)',
           }}
         />
 
-        <header className="relative z-10 mx-auto flex max-w-6xl items-center gap-4 px-5 pt-5 sm:px-8">
-          <Mark onDark className="text-[24px]" />
-          <span className="hidden text-xs font-semibold uppercase tracking-[0.2em] text-[#9d97d6] sm:inline">
-            {index === 0 ? 'Venue setup' : `Step ${index} of ${STEPS.length - 1}`}
-          </span>
+        <header className="relative z-10 mx-auto flex max-w-6xl items-center gap-2 px-5 pt-5 sm:gap-4 sm:px-8">
+          {/* Every step saves as you go, so the logo is the way out: back to the dashboard. */}
           <Link
             to="/"
-            className="ml-auto rounded-full px-4 py-2 text-sm font-semibold text-[#d9d6ff] hover:bg-white/5 hover:text-white"
+            aria-label="verzus, back to your dashboard"
+            title="Back to your dashboard"
+            className="rounded-control focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-violet/50"
           >
-            Finish later
+            <Mark className="text-[24px]" />
           </Link>
+          <span className="hidden text-xs font-semibold uppercase tracking-[0.2em] text-fg-3 sm:inline">
+            {index === 0 ? 'Venue setup' : `Step ${index} of ${STEPS.length - 1}`}
+          </span>
+          <ThemeSwitch className="ml-auto" />
         </header>
 
         {s && open && index > 0 && (
-          <nav aria-label="Setup progress" className="relative z-10 mx-auto mt-6 flex max-w-6xl gap-1.5 px-5 sm:px-8">
+          <nav aria-label="Setup progress" className="relative z-10 mx-auto mt-4 flex sm:mt-6 max-w-6xl gap-1.5 px-5 sm:px-8">
             {STEPS.slice(1).map((x, i) => {
               const at = i + 1;
               const state = at < index ? 'done' : at === index ? 'here' : 'later';
@@ -129,20 +135,18 @@ export function OnboardingPage() {
                   aria-label={`${x.label}${open[x.id] ? '' : ' (locked)'}`}
                   className="group flex-1 text-left disabled:cursor-not-allowed"
                 >
-                  <span className="relative block h-1.5 overflow-hidden rounded-full bg-white/10">
+                  {/* Done: green. Here: violet. Colours come from the theme; only the width animates. */}
+                  <span className="relative block h-1.5 overflow-hidden rounded-[2px] bg-surface-3">
                     <motion.span
-                      className="absolute inset-y-0 left-0 rounded-full"
+                      className={`absolute inset-y-0 left-0 rounded-[2px] transition-colors ${state === 'done' ? 'bg-accent' : 'bg-violet'}`}
                       initial={false}
-                      animate={{
-                        width: state === 'later' ? '0%' : '100%',
-                        backgroundColor: state === 'done' ? '#dd2b37' : '#b8b3ff',
-                      }}
+                      animate={{ width: state === 'later' ? '0%' : '100%' }}
                       transition={{ type: 'spring', stiffness: 160, damping: 24 }}
                     />
                   </span>
                   <span
                     className={`mt-2 hidden text-xs font-semibold sm:block ${
-                      state === 'here' ? 'text-white' : open[x.id] ? 'text-[#9d97d6] group-hover:text-white' : 'text-[#5a568c]'
+                      state === 'here' ? 'text-fg' : open[x.id] ? 'text-fg-3 group-hover:text-fg' : 'text-fg-3/50'
                     }`}
                   >
                     {x.label}
@@ -153,21 +157,22 @@ export function OnboardingPage() {
           </nav>
         )}
 
-        <main className="relative z-10 px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
+        {/* Room under the fixed Back / Continue bar on phones comes from the bar itself (SceneFooter). */}
+        <main className="relative z-10 px-5 pb-8 pt-6 sm:px-8 sm:pb-24 sm:pt-14">
           {s?.venue.review_note && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mx-auto mb-10 max-w-2xl rounded-2xl border-2 border-[#dd2b37] bg-[#dd2b37]/10 px-5 py-4"
+              className="mx-auto mb-10 max-w-2xl rounded-panel border border-warn/40 bg-warn-soft px-5 py-4"
             >
-              <p className="text-sm font-semibold text-[#ff8a92]">A note from verzus</p>
-              <p className="text-white">{s.venue.review_note}</p>
+              <p className="text-sm font-semibold text-warn">A note from verzus</p>
+              <p className="text-fg">{s.venue.review_note}</p>
             </motion.div>
           )}
 
-          {setup.error && <p className="text-center text-[#ff8a92]">Couldn't load this venue: {setup.error.message}</p>}
+          {setup.error && <p className="text-center text-danger">Couldn't load this venue: {setup.error.message}</p>}
           {!setup.isLoading && !s && !setup.error && (
-            <p className="text-center text-[#d9d6ff]">That venue doesn't exist, or it isn't yours.</p>
+            <p className="text-center text-fg-2">That venue doesn't exist, or it isn't yours.</p>
           )}
 
           {s && (

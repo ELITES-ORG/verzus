@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 const BUCKET = 'venue-photos';
 
 /** Longest side in pixels for each kind of photo. Phone photos are shrunk before upload. */
-export const PHOTO_SIZES = { logo: 512, cover: 2000, gallery: 1600 } as const;
+export const PHOTO_SIZES = { logo: 512, cover: 2000, gallery: 1600, court: 1600 } as const;
 export type PhotoKind = keyof typeof PHOTO_SIZES;
 
 export function photoUrl(path: string | null | undefined): string | null {

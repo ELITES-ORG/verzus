@@ -1,7 +1,9 @@
+import { isPhMobile, phMobileInput, toPhMobile } from '@verzus/schemas/phone';
 import { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
+import { saveLabel, useAutosave } from '../autosave';
 import { BasicsIcon } from '../icons';
-import { BigInput, Block, Scene, SceneFooter, type SceneProps, StageButton, StageInput, StageTextArea } from '../stage';
+import { BigInput, Block, Scene, SceneFooter, type SceneProps, StageButton, StageTextArea } from '../stage';
 
 /** Tap to add to the description, so nobody starts from a blank box. */
 const PERKS = [
@@ -19,7 +21,12 @@ export function BasicsScene({ setup, refresh, next }: SceneProps) {
   const v = setup.venue;
   const [name, setName] = useState(v.name);
   const [description, setDescription] = useState(v.description ?? '');
-  const [phone, setPhone] = useState(v.phone ?? '');
+  // The 10 digits after +63; the +63 is fixed in front of the field.
+  const [phone, setPhone] = useState(phMobileInput(v.phone ?? ''));
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const phoneOk = isPhMobile(phone);
+  // Only complain once they've left the field (or a saved number is wrong), not mid-typing.
+  const phoneWrong = !phoneOk && (phoneTouched || Boolean(v.phone)) && phone !== '';
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,34 +39,80 @@ export function BasicsScene({ setup, refresh, next }: SceneProps) {
     }
   };
 
+  // Saved as they type, once the name and mobile number are valid.
+  const ready = name.trim().length >= 2 && phoneOk;
+  const auto = useAutosave({ name: name.trim(), description: description.trim(), phone }, ready, async (d) => {
+    const { error } = await supabase
+      .from('venues')
+      .update({ name: d.name, description: d.description || null, phone: toPhMobile(d.phone) })
+      .eq('id', v.id);
+    if (error) throw error;
+    await refresh();
+  });
+
   async function save() {
     setBusy(true);
     setError(null);
-    const { error } = await supabase
-      .from('venues')
-      .update({ name: name.trim(), description: description.trim() || null, phone: phone.trim() || null })
-      .eq('id', v.id);
+    const ok = await auto.flush();
     setBusy(false);
-    if (error) return setError(error.message);
-    await refresh();
+    if (!ok) return setError("Couldn't save. Check your connection and try again.");
     next();
   }
 
   return (
-    <Scene
-      eyebrow="Step 1 · Basics"
-      icon={<BasicsIcon />}
-      title="What should players know about your place?"
-      intro="This is the first thing they read. Keep it short; you can change it any time."
-    >
-      <Block label="Venue name">
-        <BigInput aria-label="Venue name" maxLength={80} value={name} onChange={(e) => setName(e.target.value)} />
-      </Block>
+    <Scene eyebrow="Step 1 · Basics" icon={<BasicsIcon />} title="The basics">
+      {/* The two required fields, together at the top. Side by side when there is room. */}
+      <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_17rem] sm:items-start sm:gap-8">
+        <Block label="Venue name">
+          <BigInput aria-label="Venue name" required maxLength={80} value={name} onChange={(e) => setName(e.target.value)} />
+        </Block>
 
-      <Block label="Describe it in a line or two" hint="Tap to add, tap again to remove. Then make it yours.">
-        <div className="mb-3 flex flex-wrap gap-2">
+        <Block
+          label="Front desk mobile"
+          hint={
+            phoneWrong && (
+              <span role="alert" className="text-danger">
+                Enter all 10 digits, starting with 9.
+              </span>
+            )
+          }
+        >
+          {/* +63 is fixed: only PH mobile numbers. Same type size as the venue name when side by side. */}
+          <label
+            className={`flex items-baseline gap-2 border-b-[3px] py-2 text-xl transition-colors focus-within:border-violet sm:text-[clamp(22px,3.4vw,34px)] sm:leading-normal ${
+              phoneWrong ? 'border-danger' : 'border-line-strong'
+            }`}
+          >
+            <span className="font-semibold text-violet">+63</span>
+            <input
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              required
+              aria-label="Front desk mobile number, the 10 digits after +63"
+              aria-invalid={phoneWrong}
+              placeholder="9171234567"
+              value={phone}
+              // No maxLength: autofill and paste bring "0917…" or "+63 917…", which phMobileInput trims.
+              onChange={(e) => setPhone(phMobileInput(e.target.value))}
+              onBlur={() => setPhoneTouched(true)}
+              className="w-full min-w-0 bg-transparent tracking-wide text-fg placeholder:text-fg-3 focus:outline-none"
+            />
+          </label>
+        </Block>
+      </div>
+
+      <Block label="Description (optional)">
+        {/* Phones: one swipeable row of chips instead of four wrapped rows. */}
+        <div className="-mx-5 mb-3 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
           {PERKS.map((p) => (
-            <StageButton key={p} kind={has(p) ? 'chipOn' : 'chip'} onClick={() => toggle(p)} aria-pressed={has(p)}>
+            <StageButton
+              key={p}
+              kind={has(p) ? 'chipOn' : 'chip'}
+              onClick={() => toggle(p)}
+              aria-pressed={has(p)}
+              className="shrink-0 whitespace-nowrap"
+            >
               {has(p) ? '✓ ' : '+ '}
               {p}
             </StageButton>
@@ -67,26 +120,15 @@ export function BasicsScene({ setup, refresh, next }: SceneProps) {
         </div>
         <StageTextArea
           aria-label="Description"
-          rows={3}
+          rows={2}
           maxLength={600}
-          placeholder="Six badminton courts with proper lighting, ten minutes from the MRT."
+          placeholder="Tap the chips, or write your own."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </Block>
 
-      <Block label="Front desk number" hint="Shown to players who book, in case they need to reach you.">
-        <StageInput
-          type="tel"
-          autoComplete="tel"
-          placeholder="0917 123 4567"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="max-w-xs"
-        />
-      </Block>
-
-      <SceneFooter onNext={save} busy={busy} disabled={name.trim().length < 2} error={error} />
+      <SceneFooter onNext={save} busy={busy} disabled={!ready} error={error} status={saveLabel(auto.state)} />
     </Scene>
   );
 }

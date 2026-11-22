@@ -1,8 +1,10 @@
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
+import { saveLabel, useAutosave } from '../autosave';
 import { HoursIcon } from '../icons';
-import { Block, Scene, SceneFooter, type SceneProps, StageButton } from '../stage';
+import { Block, Scene, SceneFooter, type SceneProps, StageButton, StageSwitch } from '../stage';
+import { formatTime, minutes, TimePicker } from '../TimePicker';
 
 // Weekdays count from Sunday (0) in the database; the list reads Monday first.
 const DAYS = [
@@ -21,11 +23,6 @@ interface DayHours {
   closes: string;
 }
 
-const minutes = (t: string) => {
-  const [h = 0, m = 0] = t.split(':').map(Number);
-  return h * 60 + m;
-};
-
 export function HoursScene({ setup, refresh, next, back }: SceneProps) {
   const venueId = setup.venue.id;
   const [week, setWeek] = useState<Record<number, DayHours>>(() => {
@@ -40,45 +37,70 @@ export function HoursScene({ setup, refresh, next, back }: SceneProps) {
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The time being picked, if any: which day, and opening or closing.
+  const [picking, setPicking] = useState<{ day: number; which: 'opens' | 'closes' } | null>(null);
+  // The last one picked: the sheet keeps showing it while it slides away after closing.
+  const lastPicked = useRef<{ day: number; which: 'opens' | 'closes' }>({ day: 1, which: 'opens' });
+  if (picking) lastPicked.current = picking;
+  const sheet = picking ?? lastPicked.current;
+  const closePicker = useCallback(() => setPicking(null), []);
 
   const set = (day: number, patch: Partial<DayHours>) => setWeek((w) => ({ ...w, [day]: { ...(w[day] as DayHours), ...patch } }));
   const copyMonday = () => setWeek(Object.fromEntries(DAYS.map(({ day }) => [day, { ...(week[1] as DayHours) }])));
 
   const bad = DAYS.find(({ day }) => {
     const h = week[day] as DayHours;
-    return h.open && h.closes <= h.opens;
+    return h.open && minutes(h.closes) <= minutes(h.opens);
   });
   const anyOpen = DAYS.some(({ day }) => week[day]?.open);
 
-  async function save() {
-    setBusy(true);
-    setError(null);
-    const openDays = DAYS.filter(({ day }) => week[day]?.open);
-    const closedDays = DAYS.filter(({ day }) => !week[day]?.open).map((d) => d.day);
+  /** Open days upserted, closed days removed. */
+  async function saveWeek(w: Record<number, DayHours>) {
+    const openDays = DAYS.filter(({ day }) => w[day]?.open);
+    const closedDays = DAYS.filter(({ day }) => !w[day]?.open).map((d) => d.day);
     const up = await supabase.from('opening_hours').upsert(
       openDays.map(({ day }) => {
-        const h = week[day] as DayHours;
+        const h = w[day] as DayHours;
         return { venue_id: venueId, weekday: day, opens: h.opens, closes: h.closes };
       }),
       { onConflict: 'venue_id,weekday' },
     );
-    const del = closedDays.length
-      ? await supabase.from('opening_hours').delete().eq('venue_id', venueId).in('weekday', closedDays)
-      : { error: null };
-    setBusy(false);
-    const err = up.error ?? del.error;
-    if (err) return setError(err.message);
+    if (up.error) throw up.error;
+    if (closedDays.length) {
+      const del = await supabase.from('opening_hours').delete().eq('venue_id', venueId).in('weekday', closedDays);
+      if (del.error) throw del.error;
+    }
     await refresh();
+  }
+
+  // Saved as they change it, whenever the week is valid.
+  const ready = !bad && anyOpen;
+  const auto = useAutosave(week, ready, saveWeek);
+
+  async function save() {
+    setBusy(true);
+    setError(null);
+    let ok: boolean;
+    if (setup.hours.length === 0 && !auto.unsaved) {
+      // Nothing stored yet and the suggested week left as it is: Continue saves it.
+      ok = await saveWeek(week).then(
+        () => true,
+        () => false,
+      );
+    } else ok = await auto.flush();
+    setBusy(false);
+    if (!ok) return setError("Couldn't save. Check your connection and try again.");
     next();
   }
 
   return (
-    <Scene
-      eyebrow="Step 4 · Hours"
-      icon={<HoursIcon />}
-      title="When can players book?"
-      intro="Your opening hours, day by day. Closing after midnight isn't supported yet; use 23:59 for late nights."
-    >
+    <Scene eyebrow="Step 4 · Hours" icon={<HoursIcon />} title="When can players book?">
+      <Block>
+        <StageButton kind="chip" onClick={copyMonday}>
+          Copy Monday to every day
+        </StageButton>
+      </Block>
+
       <Block>
         <div className="space-y-2">
           {DAYS.map(({ day, name, short }) => {
@@ -86,35 +108,46 @@ export function HoursScene({ setup, refresh, next, back }: SceneProps) {
             const from = (minutes(h.opens) / 1440) * 100;
             const to = (minutes(h.closes) / 1440) * 100;
             const width = h.open && to > from ? to - from : 0;
+            const wrong = minutes(h.closes) <= minutes(h.opens);
+            const timeField = (which: 'opens' | 'closes') => (
+              <button
+                type="button"
+                onClick={() => setPicking({ day, which })}
+                aria-label={`${name} ${which}: ${formatTime(h[which])}. Change`}
+                className={`min-w-0 flex-1 truncate rounded-control border-2 bg-surface-2 px-2 py-2 text-center text-[15px] font-semibold text-fg hover:border-violet sm:text-base ${
+                  which === 'closes' && wrong ? 'border-danger' : 'border-line-strong'
+                }`}
+              >
+                {formatTime(h[which])}
+              </button>
+            );
             return (
-              <div key={day} className="grid grid-cols-[76px_1fr] items-center gap-3 sm:grid-cols-[96px_272px_1fr]">
-                <StageButton
-                  kind={h.open ? 'chipOn' : 'chip'}
-                  aria-pressed={h.open}
-                  aria-label={`${name}: ${h.open ? 'open' : 'closed'}`}
-                  onClick={() => set(day, { open: !h.open })}
-                  className="w-full px-2"
-                >
-                  <span className="sm:hidden">{short}</span>
-                  <span className="hidden sm:inline">{name.slice(0, 3)}</span>
-                </StageButton>
-                <div className="flex items-center gap-2">
+              <div key={day} className="grid grid-cols-[92px_1fr] items-center gap-2 sm:grid-cols-[112px_272px_1fr] sm:gap-3">
+                {/* On: open that day, with its hours. Off: closed. */}
+                <StageSwitch
+                  checked={h.open}
+                  onChange={(on) => set(day, { open: on })}
+                  ariaLabel={`${name} open`}
+                  label={<span className={`text-base ${h.open ? 'text-fg' : 'text-fg-3'}`}>{short}</span>}
+                  className="py-2"
+                />
+                <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
                   {h.open ? (
                     <>
-                      <TimeInput label={`${name} opens`} value={h.opens} onChange={(v) => set(day, { opens: v })} />
-                      <span className="text-[#9d97d6]">–</span>
-                      <TimeInput label={`${name} closes`} value={h.closes} onChange={(v) => set(day, { closes: v })} />
+                      {timeField('opens')}
+                      <span className="text-fg-3" aria-hidden="true">
+                        –
+                      </span>
+                      {timeField('closes')}
                     </>
                   ) : (
-                    <span className="text-[#6f6a9c]">Closed</span>
+                    <span className="py-2 text-fg-3">Closed</span>
                   )}
                 </div>
-                <div
-                  className="relative col-span-2 h-3 overflow-hidden rounded-full bg-white/[0.06] sm:col-span-1"
-                  aria-hidden="true"
-                >
+                {/* The day at a glance. Phones skip it: it would double each day's height. */}
+                <div className="relative hidden h-3 overflow-hidden rounded-[2px] bg-surface-2 sm:block" aria-hidden="true">
                   <motion.div
-                    className="absolute inset-y-0 rounded-full bg-gradient-to-r from-[#b8b3ff] to-[#dd2b37]"
+                    className="absolute inset-y-0 rounded-[2px] bg-gradient-to-r from-violet to-accent"
                     initial={false}
                     animate={{ left: `${from}%`, width: `${width}%`, opacity: width ? 1 : 0 }}
                     transition={{ type: 'spring', stiffness: 200, damping: 26 }}
@@ -123,7 +156,7 @@ export function HoursScene({ setup, refresh, next, back }: SceneProps) {
               </div>
             );
           })}
-          <div className="hidden grid-cols-[96px_272px_1fr] gap-3 text-xs text-[#6f6a9c] sm:grid" aria-hidden="true">
+          <div className="hidden grid-cols-[112px_272px_1fr] gap-3 text-xs text-fg-3 sm:grid" aria-hidden="true">
             <span />
             <span />
             <span className="flex justify-between">
@@ -137,34 +170,27 @@ export function HoursScene({ setup, refresh, next, back }: SceneProps) {
         </div>
       </Block>
 
-      <Block>
-        <StageButton kind="chip" onClick={copyMonday}>
-          Use Monday's hours for every day
-        </StageButton>
-      </Block>
+      {/* What's stopping Continue, right under the week (the bar at the bottom only holds buttons). */}
+      {(bad || !anyOpen) && (
+        <p role="status" className="text-sm font-semibold text-danger">
+          {bad ? `${bad.name} closes before it opens. Pick a later closing time.` : 'Switch on at least one day.'}
+        </p>
+      )}
 
-      <SceneFooter
-        onBack={back}
-        onNext={save}
-        busy={busy}
-        disabled={Boolean(bad) || !anyOpen}
-        error={
-          error ?? (bad ? `${bad.name}: closing time must be after opening time.` : anyOpen ? null : 'Open at least one day.')
-        }
+      <TimePicker
+        open={Boolean(picking)}
+        title={`${DAYS.find((d) => d.day === sheet.day)?.name} ${sheet.which === 'opens' ? 'opens' : 'closes'}`}
+        value={week[sheet.day]?.[sheet.which] ?? '07:00'}
+        after={sheet.which === 'closes' ? week[sheet.day]?.opens : undefined}
+        allowMidnight={sheet.which === 'closes'}
+        onSet={(v) => {
+          set(sheet.day, { [sheet.which]: v });
+          setPicking(null);
+        }}
+        onClose={closePicker}
       />
-    </Scene>
-  );
-}
 
-function TimeInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  return (
-    <input
-      type="time"
-      aria-label={label}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={{ colorScheme: 'dark' }}
-      className="min-w-0 flex-1 sm:w-[7.75rem] sm:flex-none rounded-lg border-2 border-[#b8b3ff]/25 bg-transparent px-2 py-1.5 text-white focus:border-[#dd2b37] focus:outline-none"
-    />
+      <SceneFooter onBack={back} onNext={save} busy={busy} disabled={!ready} error={error} status={saveLabel(auto.state)} />
+    </Scene>
   );
 }
