@@ -36,13 +36,32 @@ See `apps/player/AGENTS.md`. Add native-capable packages with `npx expo install`
 `apps/player`. NativeWind 4.2 needs Tailwind 3.4 and `react-native-css-interop` as a direct
 dependency (pnpm isolated installs).
 
+## Colour
+
+Green means go (main buttons, chosen, on, done); red means danger (errors, missing fields, delete)
+and nothing else; amber (`warn`) asks for a look; violet is focus and "you are here".
+
+- Both apps are themed, light and dark. The palette's values live once, in
+  `packages/tailwind/themes.js`; screens use its theme colours: `canvas`, `surface`, `surface-2`,
+  `line`, `fg`, `fg-2`, `fg-3`, `accent` (with `on-accent` text), `danger`, `warn`, `violet`, and
+  the corners `rounded-chip` / `rounded-control` / `rounded-panel` (4 / 5 / 6px). No new hex
+  values, and not the fixed scales in `colors.js` (`ink-*`, `brand-*`) for screens.
+- Venue app: the `webTheme` plugin writes the CSS variables; the choice is `data-theme` on
+  <html> (`src/lib/theme.ts`, `ThemeSwitch`). Player app: `nativeTheme` plus NativeWind `vars()`
+  in `src/lib/theme.tsx`, which also themes the navigator and status bar.
+- Things CSS can't reach (map tiles, navigation colours) take values from `themes.js` (`rgb()`),
+  or, for the map, `MAP_COLOURS` in `VenueMap.tsx`.
+- The logo is green against violet (`#22c55e`; `#5a4fd8` on light, `#b8b3ff` on dark). See
+  `brand/README.md`.
+
 ## Landing page (`apps/site`)
 
 - `public/sakuga-vfx/` holds unmodified copies of Sakuga VFX (MIT). Never edit them; restyle through
   the `--sk-*` CSS variables and `window.SakugaFX.P` (see `src/main.ts`). Its README records the
   upstream commit. Load them with plain `<script defer>` tags, never as modules.
-- The verzus accent is `#dd2b37` in both places. The toggle component is not used: its painted frames
-  have the original pink baked in.
+- The verzus accent is green: `--accent` `#15803d` for text and white-on-green, `--accent-bright`
+  `#22c55e` for the logo and `SakugaFX.P.accent` (marks and effects, never text). The toggle
+  component is not used: its painted frames have the original pink baked in.
 - `src/fonts.css` loads Latin faces only; the hero's 対戦 is an inline SVG outline. Adding Japanese
   text to the page means adding glyphs the same way, not importing a whole CJK font.
 - Effects follow the library's rules: nothing animates at rest, effects never carry information,

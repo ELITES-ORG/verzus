@@ -2,7 +2,8 @@ import './fonts.css';
 import './styles.css';
 import { label, matchups, type Sport, YOU } from './rivals';
 
-const ACCENT = '#dd2b37';
+// The effects' accent: the logo's bright green (marks and sparks, never text).
+const ACCENT = '#22c55e';
 const LINKS = {
   player: import.meta.env.VITE_PLAYER_URL ?? 'http://localhost:8081',
   venue: import.meta.env.VITE_VENUE_URL ?? 'http://localhost:5173',
@@ -11,7 +12,7 @@ const LINKS = {
 const $ = <T extends Element = HTMLElement>(sel: string) => document.querySelector<T>(sel);
 const $$ = <T extends Element = HTMLElement>(sel: string) => [...document.querySelectorAll<T>(sel)];
 
-/** Sakuga's effects palette is plain JS, not CSS: swap its pink for the verzus red. */
+/** Sakuga's effects palette is plain JS, not CSS: swap its pink for the verzus green. */
 function theme(fx: SakugaFX) {
   fx.P.accent = ACCENT;
 }
@@ -34,7 +35,7 @@ for (const el of $$('[data-go]')) {
 // ------------------------------------------------------------------- splash
 
 function splash() {
-  // Aim at the last word: the red phrase wraps, so its box centre falls between lines.
+  // Aim at the last word: the green phrase wraps, so its box centre falls between lines.
   const hit = $('[data-hit]');
   // The headline's smear lands ~0.55 s in (see the "hit" keyframes).
   setTimeout(() => {
