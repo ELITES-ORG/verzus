@@ -88,3 +88,34 @@
     animation: none;
   }
 }
+
+/* MapLibre's controls (VenueMap): zoom buttons and the attribution, in the theme instead of white.
+   Their icons are dark SVG images, so the dark theme inverts them. */
+.vz-map .maplibregl-ctrl-group {
+  background: rgb(var(--surface));
+  border-radius: 5px;
+}
+.vz-map .maplibregl-ctrl-group:not(:empty) {
+  box-shadow: 0 0 0 1px rgb(var(--line-strong));
+}
+.vz-map .maplibregl-ctrl-group button + button {
+  border-top-color: rgb(var(--line));
+}
+.vz-map .maplibregl-ctrl-attrib,
+.vz-map .maplibregl-ctrl-attrib.maplibregl-compact {
+  background: rgb(var(--surface) / 0.92);
+  color: rgb(var(--fg-2));
+  border-radius: 5px;
+  font-size: 11px;
+}
+.vz-map .maplibregl-ctrl-attrib a {
+  color: rgb(var(--fg-2));
+}
+.vz-map--dark .maplibregl-ctrl-icon,
+.vz-map--dark .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
+}
+.vz-map .maplibregl-ctrl-attrib-button,
+.vz-map .maplibregl-ctrl-attrib.maplibregl-compact-show .maplibregl-ctrl-attrib-button {
+  background-color: transparent;
+}
