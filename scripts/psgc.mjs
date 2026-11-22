@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// Builds the Philippine place lists the venue app's location step picks from:
-//   apps/venue/public/psgc/places.json            provinces and their cities / municipalities
-//   apps/venue/public/psgc/barangays/<code>.json  one file per province: city code -> barangays
+// Builds the Philippine place lists that the venue app's location step and player registration
+// pick from, written identically into both apps (each serves its own copy):
+//   apps/{venue,player}/public/psgc/places.json            provinces and their cities / municipalities
+//   apps/{venue,player}/public/psgc/barangays/<code>.json  one file per province: city code -> barangays
 //
 // Source: the PSA's Philippine Standard Geographic Code (PSGC), via the PSGC Cloud API
 // (https://psgc.cloud), which follows the PSA's quarterly releases. (psa.gov.ph itself blocks
@@ -25,7 +26,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const API = 'https://psgc.cloud/api/v2';
-const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'apps', 'venue', 'public', 'psgc');
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const OUTS = ['venue', 'player'].map((app) => join(ROOT, 'apps', app, 'public', 'psgc'));
 const NCR_REGION = '1300000000';
 const METRO_MANILA = { code: NCR_REGION, name: 'Metro Manila' };
 const SGA = { code: '1999900000', name: 'Special Geographic Area (BARMM)' };
@@ -200,11 +202,17 @@ const garbled = [
 if (garbled.length) problems.push(`garbled names, e.g. ${garbled.slice(0, 3).join(', ')}`);
 if (problems.length) throw new Error(`Not writing the place lists:\n- ${problems.join('\n- ')}`);
 
-await rm(OUT, { recursive: true, force: true });
-await mkdir(join(OUT, 'barangays'), { recursive: true });
-await writeFile(join(OUT, 'places.json'), `${JSON.stringify(places)}\n`);
-for (const [province, lists] of perProvince) {
+for (const lists of perProvince.values()) {
   for (const names of Object.values(lists)) names.sort((a, b) => a.localeCompare(b, 'en'));
-  await writeFile(join(OUT, 'barangays', `${province}.json`), `${JSON.stringify(lists)}\n`);
 }
-console.log(`${places.length} provinces, ${cities.length} cities / municipalities, ${barangays.length} barangays -> ${OUT}`);
+for (const OUT of OUTS) {
+  await rm(OUT, { recursive: true, force: true });
+  await mkdir(join(OUT, 'barangays'), { recursive: true });
+  await writeFile(join(OUT, 'places.json'), `${JSON.stringify(places)}\n`);
+  for (const [province, lists] of perProvince) {
+    await writeFile(join(OUT, 'barangays', `${province}.json`), `${JSON.stringify(lists)}\n`);
+  }
+}
+console.log(
+  `${places.length} provinces, ${cities.length} cities / municipalities, ${barangays.length} barangays -> ${OUTS.join(', ')}`,
+);
