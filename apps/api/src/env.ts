@@ -4,6 +4,11 @@ const Env = z.object({
   PORT: z.coerce.number().int().positive().default(8787),
   DATABASE_URL: z.string().min(1),
   SUPABASE_URL: z.url(),
+  // The project's publishable key (public; the apps ship it too). Username sign-in needs it.
+  SUPABASE_PUBLISHABLE_KEY: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined),
   SUPABASE_JWT_SECRET: z
     .string()
     .optional()

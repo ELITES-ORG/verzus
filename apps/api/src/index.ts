@@ -2,7 +2,9 @@ import { serve } from '@hono/node-server';
 import * as Sentry from '@sentry/node';
 import { systemClock } from './adapters/clock';
 import { createFakePaymentProvider } from './adapters/payments/fake';
+import { createPostgresAccountDirectory } from './adapters/postgres/accounts';
 import { createPostgresUnitOfWork, createSql } from './adapters/postgres/unit-of-work';
+import { createSupabaseAuthGateway } from './adapters/supabase-auth';
 import { createApp } from './app';
 import { loadEnv } from './env';
 
@@ -25,6 +27,12 @@ const app = createApp({
   clock: systemClock,
   auth: { supabaseUrl: env.SUPABASE_URL, jwtSecret: env.SUPABASE_JWT_SECRET },
   corsOrigins: env.CORS_ORIGINS,
+  signIn: env.SUPABASE_PUBLISHABLE_KEY
+    ? {
+        accounts: createPostgresAccountDirectory(sql),
+        auth: createSupabaseAuthGateway(env.SUPABASE_URL, env.SUPABASE_PUBLISHABLE_KEY),
+      }
+    : undefined,
   onError: (err) => Sentry.captureException(err),
 });
 
