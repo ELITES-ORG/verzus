@@ -5,7 +5,33 @@ export type Database = {
   
   "public": {
           Tables: {
-            "allies": {
+            "account_reviews": {
+                  Row: {
+                    "id": string,"kind": Database["public"]['Enums']["account_kind"] | null,"note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"status": Database["public"]['Enums']["account_status"],"submitted_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id": string,"kind"?: Database["public"]['Enums']["account_kind"] | null,"note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"submitted_at"?: string
+                  }
+                  Update: {
+                    "id"?: string,"kind"?: Database["public"]['Enums']["account_kind"] | null,"note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"submitted_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "account_reviews_id_fkey"
+      columns: ["id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "account_reviews_reviewed_by_fkey"
+      columns: ["reviewed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"allies": {
                   Row: {
                     "addressee_id": string,"created_at": string,"requester_id": string,"status": string
                   }
@@ -254,6 +280,26 @@ isOneToOne: false
       columns: ["venue_id"]
 isOneToOne: false
       referencedRelation: "venues"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"owner_details": {
+                  Row: {
+                    "created_at": string,"first_name": string,"id": string,"last_name": string,"middle_name": string | null,"phone": string,"suffix": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"first_name": string,"id": string,"last_name": string,"middle_name"?: string | null,"phone": string,"suffix"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"first_name"?: string,"id"?: string,"last_name"?: string,"middle_name"?: string | null,"phone"?: string,"suffix"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "owner_details_id_fkey"
+      columns: ["id"]
+isOneToOne: true
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -585,7 +631,17 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "can_see_match":
+            "admin_accounts":
+{ Args: { "p_status"?: Database["public"]['Enums']["account_status"] }; Returns: {
+              "barangay": string,"city": string,"email": string,"email_confirmed_at": string,"first_name": string,"id": string,"kind": Database["public"]['Enums']["account_kind"],"last_name": string,"middle_name": string,"note": string,"phone": string,"province": string,"registered_at": string,"reviewed_at": string,"sports": (Database["public"]['Enums']["sport"])[],"status": Database["public"]['Enums']["account_status"],"submitted_at": string,"suffix": string,"username": string
+            }[]
+                           },
+"admin_stats":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "bookings_app": number,"bookings_desk": number,"bookings_total": number,"bookings_upcoming": number,"bookings_week": number,"owners_approved": number,"owners_pending": number,"owners_rejected": number,"owners_unconfirmed": number,"players_approved": number,"players_pending": number,"players_rejected": number,"players_unconfirmed": number,"venues_live": number,"venues_waiting": number
+            }[]
+                           },
+"can_see_match":
 { Args: { "p_match_id": string }; Returns: boolean
                            },
 "court_busy_ranges":
@@ -604,6 +660,9 @@ isOneToOne: false
                            },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"is_approved":
+{ Args: { "p_user": string }; Returns: boolean
                            },
 "is_match_participant":
 { Args: { "p_match_id": string }; Returns: boolean
@@ -631,6 +690,15 @@ isOneToOne: false
 "redeem_venue_invite":
 { Args: { "p_token": string,"p_venue_name": string }; Returns: string
                            },
+"require_approved":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"resubmit_account":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"review_account":
+{ Args: { "p_approve": boolean,"p_note"?: string,"p_user": string }; Returns: undefined
+                           },
 "username_available":
 { Args: { "p_username": string }; Returns: boolean
                            },
@@ -646,7 +714,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "booking_source": "app"|"walk_in"|"phone"|"block","booking_status": "held"|"confirmed"|"cancelled"|"expired","ledger_account": "player"|"venue"|"platform"|"provider_clearing","match_mode": "ranked"|"casual","match_status": "open_allies"|"open_public"|"full"|"played"|"awaiting_confirmation"|"rated"|"disputed"|"resolved"|"cancelled","participant_status": "held"|"paid"|"left"|"expired"|"refunded","payment_status": "pending"|"succeeded"|"failed"|"refunded","self_assessment": "beginner"|"intermediate"|"advanced","sport": "basketball"|"badminton"|"futsal"|"tennis"|"volleyball"|"pickleball","venue_role": "owner"|"staff","venue_status": "draft"|"submitted"|"live"|"suspended"
+            "account_kind": "player"|"venue_owner","account_status": "pending"|"approved"|"rejected","booking_source": "app"|"walk_in"|"phone"|"block","booking_status": "held"|"confirmed"|"cancelled"|"expired","ledger_account": "player"|"venue"|"platform"|"provider_clearing","match_mode": "ranked"|"casual","match_status": "open_allies"|"open_public"|"full"|"played"|"awaiting_confirmation"|"rated"|"disputed"|"resolved"|"cancelled","participant_status": "held"|"paid"|"left"|"expired"|"refunded","payment_status": "pending"|"succeeded"|"failed"|"refunded","self_assessment": "beginner"|"intermediate"|"advanced","sport": "basketball"|"badminton"|"futsal"|"tennis"|"volleyball"|"pickleball","venue_role": "owner"|"staff","venue_status": "draft"|"submitted"|"live"|"suspended"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -762,7 +830,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "booking_source": ["app", "walk_in", "phone", "block"],"booking_status": ["held", "confirmed", "cancelled", "expired"],"ledger_account": ["player", "venue", "platform", "provider_clearing"],"match_mode": ["ranked", "casual"],"match_status": ["open_allies", "open_public", "full", "played", "awaiting_confirmation", "rated", "disputed", "resolved", "cancelled"],"participant_status": ["held", "paid", "left", "expired", "refunded"],"payment_status": ["pending", "succeeded", "failed", "refunded"],"self_assessment": ["beginner", "intermediate", "advanced"],"sport": ["basketball", "badminton", "futsal", "tennis", "volleyball", "pickleball"],"venue_role": ["owner", "staff"],"venue_status": ["draft", "submitted", "live", "suspended"]
+            "account_kind": ["player", "venue_owner"],"account_status": ["pending", "approved", "rejected"],"booking_source": ["app", "walk_in", "phone", "block"],"booking_status": ["held", "confirmed", "cancelled", "expired"],"ledger_account": ["player", "venue", "platform", "provider_clearing"],"match_mode": ["ranked", "casual"],"match_status": ["open_allies", "open_public", "full", "played", "awaiting_confirmation", "rated", "disputed", "resolved", "cancelled"],"participant_status": ["held", "paid", "left", "expired", "refunded"],"payment_status": ["pending", "succeeded", "failed", "refunded"],"self_assessment": ["beginner", "intermediate", "advanced"],"sport": ["basketball", "badminton", "futsal", "tennis", "volleyball", "pickleball"],"venue_role": ["owner", "staff"],"venue_status": ["draft", "submitted", "live", "suspended"]
           }
         }
 } as const

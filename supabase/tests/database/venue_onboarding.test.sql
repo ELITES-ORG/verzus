@@ -8,6 +8,8 @@ insert into auth.users (id, email) values
   ('10000000-0000-4000-8000-000000000001', 'owner@test.local'),
   ('20000000-0000-4000-8000-000000000002', 'outsider@test.local'),
   ('30000000-0000-4000-8000-000000000003', 'staff@test.local');
+-- New accounts wait for approval (account_approval.test.sql); these are approved.
+update public.account_reviews set status = 'approved';
 
 -- Act as a signed-in user (optionally a verzus admin) for the rest of the transaction.
 create function pg_temp.act_as(p_user uuid, p_admin boolean default false) returns void

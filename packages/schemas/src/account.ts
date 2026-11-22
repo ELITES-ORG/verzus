@@ -51,6 +51,29 @@ export function isEmail(input: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.trim());
 }
 
+/** A venue owner's name and mobile number, asked at registration so verzus can review them. */
+export interface OwnerRegistration {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  suffix?: Suffix | '';
+  phone: string;
+}
+
+/** The sign-up metadata the sign-up trigger reads to store an owner's details (owner_details). */
+export function ownerSignUpData(r: OwnerRegistration): Record<string, unknown> {
+  const phone = toPhMobile(r.phone);
+  if (!phone) throw new Error('Not a Philippine mobile number');
+  return {
+    kind: 'venue_owner',
+    first_name: r.firstName.trim(),
+    middle_name: r.middleName?.trim() ?? '',
+    last_name: r.lastName.trim(),
+    suffix: r.suffix ?? '',
+    phone,
+  };
+}
+
 /** Everything a player registers with, besides email and password. */
 export interface PlayerRegistration {
   username: string;

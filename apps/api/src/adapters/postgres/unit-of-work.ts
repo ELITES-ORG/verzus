@@ -1,5 +1,6 @@
 import type { MatchMode, MatchStatus, SelfAssessment, Sport } from '@verzus/schemas';
 import postgres, { PostgresError, type Sql, type TransactionSql } from 'postgres';
+import { AppError } from '../../domain/errors';
 import type { PaymentRecord, Repos, StoredRating, UnitOfWork } from '../../ports/repositories';
 
 /**
@@ -18,6 +19,7 @@ export function createPostgresUnitOfWork(sql: Sql): UnitOfWork {
 }
 
 const EXCLUSION_VIOLATION = '23P01';
+const INSUFFICIENT_PRIVILEGE = '42501';
 
 function repos(tx: TransactionSql): Repos {
   return {
@@ -53,6 +55,10 @@ function repos(tx: TransactionSql): Repos {
           return { id: (row as { id: string }).id };
         } catch (e) {
           if (e instanceof PostgresError && e.code === EXCLUSION_VIOLATION) return 'slot_taken';
+          // The database refuses players whose account isn't approved yet.
+          if (e instanceof PostgresError && e.code === INSUFFICIENT_PRIVILEGE) {
+            throw new AppError('forbidden', 'Your account is waiting for approval');
+          }
           throw e;
         }
       },

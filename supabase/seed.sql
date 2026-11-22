@@ -41,6 +41,14 @@ from auth.users u
 where u.id::text like 'eeeeeeee-0000-4000-8000-%'
 on conflict (provider_id, provider) do nothing;
 
+-- Dev accounts are approved, with what they registered as (new accounts wait for an admin).
+update public.account_reviews r
+   set status = 'approved', reviewed_at = now(),
+       kind = case when u.email like 'player%' then 'player'::public.account_kind
+                   when u.email in ('owner@verzus.local', 'venues@verzus.local') then 'venue_owner' end
+  from auth.users u
+ where u.id = r.id and u.id::text like 'eeeeeeee-0000-4000-8000-%';
+
 -- Venues -------------------------------------------------------------------------------
 insert into public.venues (id, name, description, address, city, location, status, phone)
 values

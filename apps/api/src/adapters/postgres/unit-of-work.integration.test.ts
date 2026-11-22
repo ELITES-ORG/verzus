@@ -27,6 +27,8 @@ describe.skipIf(!url)('Postgres adapter (integration)', () => {
     const [venue, court] = [randomUUID(), randomUUID()];
     await sql`insert into auth.users (id, email) values
       (${alice}, ${`${alice}@test.local`}), (${bob}, ${`${bob}@test.local`}), (${owner}, ${`${owner}@test.local`})`;
+    // New accounts wait for an admin; these are approved.
+    await sql`update public.account_reviews set status = 'approved' where id in (${alice}, ${bob}, ${owner})`;
     await sql`insert into public.venues (id, name, address, city, location, status, created_by)
       values (${venue}, 'Integration Courts', '1 Test St', 'Makati',
               extensions.st_setsrid(extensions.st_makepoint(121.02, 14.55), 4326)::extensions.geography, 'live', ${owner})`;

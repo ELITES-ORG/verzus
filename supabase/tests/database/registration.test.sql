@@ -34,6 +34,8 @@ insert into auth.users (id, email, raw_user_meta_data) values
   ('11000000-0000-4000-8000-000000000001', 'maria@test.local', pg_temp.player('Maria.S')),
   ('22000000-0000-4000-8000-000000000002', 'owner2@test.local', '{}'),
   ('33000000-0000-4000-8000-000000000003', 'other@test.local', pg_temp.player('other_one', '["futsal"]'));
+-- New accounts wait for approval (account_approval.test.sql); these are approved.
+update public.account_reviews set status = 'approved';
 
 select is((select username from public.profiles where id = '11000000-0000-4000-8000-000000000001'), 'maria.s',
   'a registering player gets their username, lowercased');
@@ -71,7 +73,7 @@ select is((select count(*)::int from public.player_details), 1, 'a player reads 
 select is((select username from public.profiles where id = '11000000-0000-4000-8000-000000000001'), 'maria.s',
   'but everyone signed in can see usernames');
 select pg_temp.act_as('a0000000-0000-4000-8000-00000000000a', true);
-select is((select count(*)::int from public.player_details), 2, 'verzus reads every player''s details');
+select is((select count(*)::int from public.player_details where id in ('11000000-0000-4000-8000-000000000001', '33000000-0000-4000-8000-000000000003')), 2, 'verzus reads every player''s details');
 
 -- Usernames ---------------------------------------------------------------------
 select pg_temp.act_as_anon();

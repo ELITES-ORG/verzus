@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isEmail, normalizeUsername, passwordProblem, playerSignUpData, usernameProblem } from './account';
+import { isEmail, normalizeUsername, ownerSignUpData, passwordProblem, playerSignUpData, usernameProblem } from './account';
 
 describe('usernames', () => {
   it('are lowercased and trimmed', () => {
@@ -28,6 +28,22 @@ describe('emails', () => {
     expect(isEmail('maria@example.com')).toBe(true);
     expect(isEmail('maria@example')).toBe(false);
     expect(isEmail('maria example.com')).toBe(false);
+  });
+});
+
+describe('ownerSignUpData', () => {
+  it('is the shape the sign-up trigger reads for owners', () => {
+    expect(ownerSignUpData({ firstName: ' Olga ', lastName: 'Reyes', suffix: 'Jr.', phone: '+63 917 333 4444' })).toEqual({
+      kind: 'venue_owner',
+      first_name: 'Olga',
+      middle_name: '',
+      last_name: 'Reyes',
+      suffix: 'Jr.',
+      phone: '+639173334444',
+    });
+  });
+  it('refuses a number that is not a PH mobile', () => {
+    expect(() => ownerSignUpData({ firstName: 'O', lastName: 'R', phone: '12345' })).toThrow();
   });
 });
 

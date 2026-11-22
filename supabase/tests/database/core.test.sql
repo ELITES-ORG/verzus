@@ -8,6 +8,8 @@ insert into auth.users (id, email) values
   ('11111111-1111-4111-8111-111111111111', 'owner@test.local'),
   ('22222222-2222-4222-8222-222222222222', 'player@test.local'),
   ('33333333-3333-4333-8333-333333333333', 'other@test.local');
+-- New accounts wait for approval (account_approval.test.sql); these are approved.
+update public.account_reviews set status = 'approved';
 
 select ok(exists (select 1 from public.profiles where id = '22222222-2222-4222-8222-222222222222'),
   'a profile is created for every new auth user');
