@@ -34,8 +34,10 @@
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
     <script>
-      // The service worker exists only in production builds (`pnpm build` runs Workbox).
-      if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
+      // The service worker exists only in production builds (`pnpm build` runs Workbox), so skip it
+      // on the dev server: locally and through `pnpm tunnel`.
+      var devHost = location.hostname === 'localhost' || location.hostname.endsWith('.trycloudflare.com');
+      if ('serviceWorker' in navigator && !devHost) {
         window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
       }
     </script>
