@@ -65,14 +65,14 @@ isOneToOne: false
                   ]
                 },"courts": {
                   Row: {
-                    "created_at": string,"currency": string,"hourly_rate_cents": number,"id": string,"is_active": boolean,"name": string,"sport": Database["public"]['Enums']["sport"],"venue_id": string
+                    "created_at": string,"currency": string,"hourly_rate_cents": number,"id": string,"is_active": boolean,"name": string,"photo_paths": (string)[],"sport": Database["public"]['Enums']["sport"],"venue_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"currency"?: string,"hourly_rate_cents": number,"id"?: string,"is_active"?: boolean,"name": string,"sport": Database["public"]['Enums']["sport"],"venue_id": string
+                    "created_at"?: string,"currency"?: string,"hourly_rate_cents": number,"id"?: string,"is_active"?: boolean,"name": string,"photo_paths"?: (string)[],"sport": Database["public"]['Enums']["sport"],"venue_id": string
                   }
                   Update: {
-                    "created_at"?: string,"currency"?: string,"hourly_rate_cents"?: number,"id"?: string,"is_active"?: boolean,"name"?: string,"sport"?: Database["public"]['Enums']["sport"],"venue_id"?: string
+                    "created_at"?: string,"currency"?: string,"hourly_rate_cents"?: number,"id"?: string,"is_active"?: boolean,"name"?: string,"photo_paths"?: (string)[],"sport"?: Database["public"]['Enums']["sport"],"venue_id"?: string
                   }
                   Relationships: [
                     {
@@ -521,14 +521,14 @@ isOneToOne: false
                   ]
                 },"venues": {
                   Row: {
-                    "address": string | null,"city": string | null,"cover_path": string | null,"created_at": string,"created_by": string | null,"description": string | null,"id": string,"is_published": boolean | null,"lat": number | null,"lng": number | null,"location": unknown,"logo_path": string | null,"name": string,"phone": string | null,"photo_paths": (string)[],"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"status": Database["public"]['Enums']["venue_status"],"submitted_at": string | null,"updated_at": string
+                    "address": string | null,"barangay": string | null,"city": string | null,"cover_path": string | null,"created_at": string,"created_by": string | null,"description": string | null,"id": string,"is_published": boolean | null,"lat": number | null,"lng": number | null,"location": unknown,"logo_path": string | null,"name": string,"phone": string | null,"photo_paths": (string)[],"province": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"status": Database["public"]['Enums']["venue_status"],"submitted_at": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "address"?: string | null,"city"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string | null,"id"?: string,"is_published"?: never,"lat"?: never,"lng"?: never,"location"?: unknown,"logo_path"?: string | null,"name": string,"phone"?: string | null,"photo_paths"?: (string)[],"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["venue_status"],"submitted_at"?: string | null,"updated_at"?: string
+                    "address"?: string | null,"barangay"?: string | null,"city"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string | null,"id"?: string,"is_published"?: never,"lat"?: never,"lng"?: never,"location"?: unknown,"logo_path"?: string | null,"name": string,"phone"?: string | null,"photo_paths"?: (string)[],"province"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["venue_status"],"submitted_at"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "address"?: string | null,"city"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string | null,"id"?: string,"is_published"?: never,"lat"?: never,"lng"?: never,"location"?: unknown,"logo_path"?: string | null,"name"?: string,"phone"?: string | null,"photo_paths"?: (string)[],"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["venue_status"],"submitted_at"?: string | null,"updated_at"?: string
+                    "address"?: string | null,"barangay"?: string | null,"city"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string | null,"id"?: string,"is_published"?: never,"lat"?: never,"lng"?: never,"location"?: unknown,"logo_path"?: string | null,"name"?: string,"phone"?: string | null,"photo_paths"?: (string)[],"province"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["venue_status"],"submitted_at"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -590,6 +590,9 @@ isOneToOne: false
                            },
 "is_venue_member":
 { Args: { "p_owner_only"?: boolean,"p_venue_id": string }; Returns: boolean
+                           },
+"paths_in_venue_folder":
+{ Args: { "p_paths": (string)[],"p_venue_id": string }; Returns: boolean
                            },
 "player_reliability":
 { Args: { "p_user_ids": (string)[] }; Returns: {

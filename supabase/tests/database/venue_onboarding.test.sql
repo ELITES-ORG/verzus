@@ -1,7 +1,7 @@
 -- Venue onboarding rules: invites, review status, logo/cover paths, staff, photo uploads.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(26);
+select plan(32);
 
 insert into auth.users (id, email) values
   ('a0000000-0000-4000-8000-00000000000a', 'admin@test.local'),
@@ -75,9 +75,15 @@ select throws_ok(
 
 select lives_ok(
   format($$update public.venues set address = '1 Test St', city = 'Makati',
+             province = 'Metro Manila', barangay = 'Poblacion',
              location = extensions.st_setsrid(extensions.st_makepoint(121.02, 14.55), 4326)::extensions.geography
            where id = %L$$, current_setting('t.venue')),
   'an owner can fill in their draft');
+select is((select province || ' / ' || barangay from public.venues where id = current_setting('t.venue')::uuid),
+  'Metro Manila / Poblacion', 'an owner can save the province and barangay');
+select throws_ok(
+  format($$update public.venues set barangay = '' where id = %L$$, current_setting('t.venue')),
+  '23514', null, 'an empty barangay is stored as no barangay, not as blank text');
 
 select throws_ok(
   format($$update public.venues set status = 'submitted' where id = %L$$, current_setting('t.venue')),
@@ -97,6 +103,26 @@ select lives_ok(
   format($$update public.venues set logo_path = %L, cover_path = %L where id = %L$$,
          current_setting('t.venue') || '/logo.png', current_setting('t.venue') || '/cover.jpg', current_setting('t.venue')),
   'an owner can set a logo and cover photo from their folder');
+
+select throws_ok(
+  format($$update public.venues set status = 'submitted' where id = %L$$, current_setting('t.venue')),
+  '23514', 'add a photo of every court open for booking before submitting',
+  'a venue cannot be submitted while an open court has no photo');
+
+select throws_ok(
+  format($$update public.courts set photo_paths = array(select %L || '/court-' || i || '.webp' from generate_series(1, 6) i)
+           where venue_id = %L$$, current_setting('t.venue'), current_setting('t.venue')),
+  '23514', null, 'a court has at most 5 photos');
+
+select throws_ok(
+  format($$update public.courts set photo_paths = array['someone-else/court.webp'] where venue_id = %L$$,
+         current_setting('t.venue')),
+  '23514', null, 'court photos must be in the venue''s own folder');
+
+select lives_ok(
+  format($$update public.courts set photo_paths = array[%L || '/court-1.webp'] where venue_id = %L$$,
+         current_setting('t.venue'), current_setting('t.venue')),
+  'an owner can add court photos from their folder');
 
 select lives_ok(
   format($$update public.venues set status = 'submitted' where id = %L$$, current_setting('t.venue')),

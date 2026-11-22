@@ -69,8 +69,11 @@ insert into public.venue_invites (token, note, expires_at)
 values ('dddddddd-0000-4000-8000-000000000001', 'Dev: owner@verzus.local (seed)', '2099-01-01T00:00:00Z')
 on conflict (token) do nothing;
 
-insert into public.courts (venue_id, name, sport, hourly_rate_cents)
-select x.venue_id, x.name, x.sport::public.sport, x.rate
+-- Each court gets one photo path (venues need a photo of every open court to be submitted). The
+-- files aren't in local storage, so these show as missing images; upload real ones in the app.
+insert into public.courts (venue_id, name, sport, hourly_rate_cents, photo_paths)
+select x.venue_id, x.name, x.sport::public.sport, x.rate,
+       array[x.venue_id::text || '/court-' || lower(replace(x.name, ' ', '-')) || '.webp']
 from (values
   ('00000000-0000-4000-8000-000000000001'::uuid, 'Court 1', 'basketball', 120000),
   ('00000000-0000-4000-8000-000000000001'::uuid, 'Court 2', 'basketball', 120000),
