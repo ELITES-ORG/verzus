@@ -32,6 +32,22 @@ for (const el of $$('[data-go]')) {
   });
 }
 
+// ----------------------------------------------------------------- register
+
+/** Register asks who you are, then opens that app's sign-up. */
+function register() {
+  const dialog = $<HTMLDialogElement>('[data-register-dialog]');
+  if (!dialog) return;
+  for (const a of $$<HTMLAnchorElement>('[data-register-to]')) {
+    a.href = `${a.dataset.registerTo === 'venue' ? LINKS.venue : LINKS.player}/register`;
+  }
+  $('[data-register]')?.addEventListener('click', () => dialog.showModal());
+  // A click on the backdrop lands on the dialog itself: close it, like Esc.
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+}
+
 // ------------------------------------------------------------------- splash
 
 function splash() {
@@ -294,6 +310,7 @@ function once(el: Element, fn: () => void) {
 // -------------------------------------------------------------------- start
 
 if (window.SakugaFX) theme(window.SakugaFX);
+register();
 splash();
 storyboard();
 arena();
