@@ -4,7 +4,9 @@ import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation } from 'react-router';
 import './fonts.css';
 import './index.css';
+import { useMyAccount } from './lib/account';
 import { isAdmin, SessionProvider, useSession } from './lib/session';
+import { AccountReviewPage } from './pages/AccountReviewPage';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { JoinPage } from './pages/JoinPage';
 import { AccountPage, Layout } from './pages/Layout';
@@ -25,6 +27,19 @@ function RequireSession() {
   return <Navigate to={`/sign-in?next=${next}`} replace />;
 }
 
+/**
+ * Until verzus approves an account, every signed-in page shows where it stands instead (verzus
+ * admins pass). The database enforces the same: an unapproved account can't create or join a venue.
+ */
+function RequireApproved() {
+  const { session } = useSession();
+  const account = useMyAccount();
+  if (isAdmin(session)) return <Outlet />;
+  if (account.isLoading) return null;
+  if (account.data?.status === 'approved') return <Outlet />;
+  return <AccountReviewPage account={account.data ?? null} />;
+}
+
 function RequireAdmin() {
   const { session } = useSession();
   return isAdmin(session) ? <Outlet /> : <Navigate to="/" replace />;
@@ -43,39 +58,61 @@ const router = createBrowserRouter([
   {
     element: <RequireSession />,
     children: [
-      { path: '/join/:token', element: <JoinPage /> },
-      { path: '/staff/:token', element: <StaffJoinPage /> },
-      { path: '/start', element: <StartPage /> },
-      // Venue onboarding is full-screen, outside the portal chrome. It carries the map library and
-      // Motion, so it loads only when an owner opens it.
       {
-        path: '/setup/:venueId',
-        lazy: async () => ({ Component: (await import('./pages/onboarding/OnboardingPage')).OnboardingPage }),
-      },
-      {
-        element: <Layout />,
+        element: <RequireApproved />,
         children: [
-          // Loaded on demand, so sign-in doesn't wait for the calendar.
-          { index: true, lazy: async () => ({ Component: (await import('./pages/CalendarPage')).CalendarPage }) },
-          { path: 'account', element: <AccountPage /> },
-          { path: 'venues/:venueId/staff', lazy: async () => ({ Component: (await import('./pages/StaffPage')).StaffPage }) },
+          { path: '/join/:token', element: <JoinPage /> },
+          { path: '/staff/:token', element: <StaffJoinPage /> },
+          { path: '/start', element: <StartPage /> },
+          // Venue onboarding is full-screen, outside the portal chrome. It carries the map library and
+          // Motion, so it loads only when an owner opens it.
           {
-            path: 'admin',
-            element: <RequireAdmin />,
+            path: '/setup/:venueId',
+            lazy: async () => ({ Component: (await import('./pages/onboarding/OnboardingPage')).OnboardingPage }),
+          },
+          {
+            element: <Layout />,
             children: [
+              // Loaded on demand, so sign-in doesn't wait for the calendar.
+              { index: true, lazy: async () => ({ Component: (await import('./pages/CalendarPage')).CalendarPage }) },
+              { path: 'account', element: <AccountPage /> },
+              { path: 'venues/:venueId/staff', lazy: async () => ({ Component: (await import('./pages/StaffPage')).StaffPage }) },
               {
-                lazy: async () => ({ Component: (await import('./pages/admin/AdminLayout')).AdminLayout }),
+                path: 'admin',
+                element: <RequireAdmin />,
                 children: [
-                  { index: true, lazy: async () => ({ Component: (await import('./pages/admin/VenuesPage')).ReviewQueuePage }) },
-                  { path: 'venues', lazy: async () => ({ Component: (await import('./pages/admin/VenuesPage')).AllVenuesPage }) },
                   {
-                    path: 'venues/:venueId',
-                    lazy: async () => ({ Component: (await import('./pages/admin/VenueReviewPage')).VenueReviewPage }),
-                  },
-                  { path: 'invites', lazy: async () => ({ Component: (await import('./pages/admin/InvitesPage')).InvitesPage }) },
-                  {
-                    path: 'disputes',
-                    lazy: async () => ({ Component: (await import('./pages/admin/DisputesPage')).DisputesPage }),
+                    lazy: async () => ({ Component: (await import('./pages/admin/AdminLayout')).AdminLayout }),
+                    children: [
+                      {
+                        index: true,
+                        lazy: async () => ({ Component: (await import('./pages/admin/OverviewPage')).OverviewPage }),
+                      },
+                      {
+                        path: 'accounts',
+                        lazy: async () => ({ Component: (await import('./pages/admin/AccountsPage')).AccountsPage }),
+                      },
+                      {
+                        path: 'review',
+                        lazy: async () => ({ Component: (await import('./pages/admin/VenuesPage')).ReviewQueuePage }),
+                      },
+                      {
+                        path: 'venues',
+                        lazy: async () => ({ Component: (await import('./pages/admin/VenuesPage')).AllVenuesPage }),
+                      },
+                      {
+                        path: 'venues/:venueId',
+                        lazy: async () => ({ Component: (await import('./pages/admin/VenueReviewPage')).VenueReviewPage }),
+                      },
+                      {
+                        path: 'invites',
+                        lazy: async () => ({ Component: (await import('./pages/admin/InvitesPage')).InvitesPage }),
+                      },
+                      {
+                        path: 'disputes',
+                        lazy: async () => ({ Component: (await import('./pages/admin/DisputesPage')).DisputesPage }),
+                      },
+                    ],
                   },
                 ],
               },

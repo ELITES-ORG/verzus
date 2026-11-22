@@ -643,7 +643,7 @@ function DetailsDialog(props: { entry: Entry; courtName: string; onClose: () => 
 
 function Empty({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="mx-auto max-w-md space-y-2 rounded-panel border-2 border-dashed border-line p-8 text-center">
+    <div className="mx-auto w-full max-w-md space-y-2 rounded-panel border-2 border-dashed border-line p-8 text-center">
       <h1 className="font-bold text-fg">{title}</h1>
       <p className="text-sm text-fg-2">{children}</p>
     </div>

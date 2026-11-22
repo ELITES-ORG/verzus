@@ -80,7 +80,7 @@ export function StaffPage() {
   if (venue?.role !== 'owner') return <p className="text-fg-2">Only the venue's owner can manage staff.</p>;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-10">
+    <div className="mx-auto w-full max-w-3xl space-y-10">
       <header className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wide text-fg-3">{venue.name}</p>
         <h1 className="text-2xl font-bold text-fg">Staff</h1>
