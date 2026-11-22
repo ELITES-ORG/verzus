@@ -18,7 +18,8 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:seed": "node scripts/db-seed.mjs",
-    "db:types": "pnpm --filter @verzus/db-types gen"
+    "db:types": "pnpm --filter @verzus/db-types gen",
+    "tunnel": "node scripts/tunnel.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",

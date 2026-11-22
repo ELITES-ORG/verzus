@@ -59,6 +59,15 @@
       "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
     },
     {
+      "label": "verzus: share online",
+      "detail": "Database, Cloudflare tunnels and all apps; prints public links (stop the other app tasks first)",
+      "type": "shell",
+      "command": "pnpm tunnel",
+      "problemMatcher": [],
+      "runOptions": { "instanceLimit": 1 },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true }
+    },
+    {
       "label": "verzus: stop database",
       "detail": "Stops local Supabase (run Tasks: Terminate Task > All Running Tasks for the rest)",
       "type": "shell",

@@ -3,5 +3,6 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
-  server: { port: 5173, strictPort: true },
+  // allowedHosts: `pnpm tunnel` serves the dev server through Cloudflare quick tunnels.
+  server: { port: 5173, strictPort: true, allowedHosts: ['.trycloudflare.com'] },
 });

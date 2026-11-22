@@ -49,7 +49,12 @@ async function ownerLanding(userId: string): Promise<string> {
 }
 
 const url = new URL(import.meta.env.VITE_SUPABASE_URL as string);
-const LOCAL = ['localhost', '127.0.0.1'].includes(url.hostname) || /^(10|192\.168|172\.(1[6-9]|2\d|3[01]))\./.test(url.hostname);
+// `.trycloudflare.com`: a `pnpm tunnel` quick tunnel, which only ever leads to the Supabase on the
+// machine running it, never to the hosted project.
+const LOCAL =
+  ['localhost', '127.0.0.1'].includes(url.hostname) ||
+  /^(10|192\.168|172\.(1[6-9]|2\d|3[01]))\./.test(url.hostname) ||
+  url.hostname.endsWith('.trycloudflare.com');
 
 export function DevLoginPage() {
   const navigate = useNavigate();

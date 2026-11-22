@@ -106,6 +106,27 @@ running), then opens one terminal each for the API, player app, venue dashboard 
 Stop the apps with **Tasks: Terminate Task** → **All Running Tasks**, and the database with
 `pnpm db:stop` (or the **verzus: stop database** task).
 
+### Sharing the local stack online
+
+To try the apps from a phone or another computer on any network, stop the app tasks and run
+
+```sh
+pnpm tunnel            # or the VS Code task "verzus: share online"
+```
+
+It starts the database, opens Cloudflare quick tunnels (no account needed; install `cloudflared`
+first, e.g. `winget install Cloudflare.cloudflared`) for Supabase, the API and the three apps, starts
+the apps pointed at them and prints the links. The links change on every run. `.env.local` files are
+not edited: the tunnel addresses are passed as environment variables, which override them.
+Ctrl+C stops the tunnels and the apps; Supabase keeps running.
+
+- Dev login works through the tunnels: `<player link>/dev-login` and `<venue link>/dev-login`. The
+  venue page accepts a `.trycloudflare.com` Supabase address because a quick tunnel only ever leads
+  to the machine running it.
+- **Anyone with the links reaches your local database**, which uses well-known default keys, and the
+  dev accounts share a published password. Share links only with people you trust, keep real data
+  out of the local database, and stop the tunnels when you're done.
+
 ## Everyday commands
 
 ```sh
