@@ -24,10 +24,10 @@ export default function SignInScreen() {
   }
 
   return (
-    <View className="flex-1 gap-4 bg-white p-6">
-      <Text className="text-xl font-semibold text-ink-900">{sent ? 'Enter the code we sent' : 'Sign in with your phone'}</Text>
+    <View className="flex-1 gap-4 bg-surface p-6">
+      <Text className="text-xl font-semibold text-fg">{sent ? 'Enter the code we sent' : 'Sign in with your phone'}</Text>
       <TextInput
-        className="rounded-xl border border-ink-200 px-4 py-3 text-base"
+        className="rounded-control border border-line-strong bg-surface px-4 py-3 text-base text-fg placeholder:text-fg-3"
         placeholder="+639170000001"
         keyboardType="phone-pad"
         autoComplete="tel"
@@ -37,7 +37,7 @@ export default function SignInScreen() {
       />
       {sent && (
         <TextInput
-          className="rounded-xl border border-ink-200 px-4 py-3 text-base"
+          className="rounded-control border border-line-strong bg-surface px-4 py-3 text-base text-fg placeholder:text-fg-3"
           placeholder="6-digit code"
           keyboardType="number-pad"
           autoComplete="one-time-code"
@@ -45,14 +45,14 @@ export default function SignInScreen() {
           onChangeText={setCode}
         />
       )}
-      {error && <Text className="text-brand-700">{error}</Text>}
-      <Pressable disabled={busy} onPress={submit} className="items-center rounded-full bg-brand-500 py-3 disabled:opacity-60">
-        <Text className="font-medium text-white">{sent ? 'Verify' : 'Send code'}</Text>
+      {error && <Text className="text-danger">{error}</Text>}
+      <Pressable disabled={busy} onPress={submit} className="items-center rounded-control bg-accent py-3 disabled:opacity-60">
+        <Text className="font-medium text-on-accent">{sent ? 'Verify' : 'Send code'}</Text>
       </Pressable>
       {__DEV__ && (
         <Link href="/dev-login" asChild>
           <Pressable className="items-center py-2">
-            <Text className="font-medium text-ink-500 underline">Dev login (local only)</Text>
+            <Text className="font-medium text-fg-3 underline">Dev login (local only)</Text>
           </Pressable>
         </Link>
       )}

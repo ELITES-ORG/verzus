@@ -26,33 +26,33 @@ export default function PlayScreen() {
   });
 
   return (
-    <View className="flex-1 bg-ink-50">
+    <View className="flex-1 bg-canvas">
       <ScrollView horizontal className="max-h-14 grow-0 px-3 py-2" showsHorizontalScrollIndicator={false}>
         {[null, ...SPORTS].map((s) => (
           <Pressable
             key={s ?? 'all'}
             onPress={() => setSport(s)}
-            className={`mr-2 rounded-full px-4 py-2 ${sport === s ? 'bg-brand-500' : 'bg-white'}`}
+            className={`mr-2 rounded-control border px-4 py-2 ${sport === s ? 'border-accent bg-accent' : 'border-line bg-surface'}`}
           >
-            <Text className={sport === s ? 'font-medium text-white' : 'text-ink-700'}>{s ?? 'All sports'}</Text>
+            <Text className={sport === s ? 'font-medium text-on-accent' : 'text-fg-2'}>{s ?? 'All sports'}</Text>
           </Pressable>
         ))}
       </ScrollView>
 
-      {venues.error && <Text className="p-4 text-brand-700">Couldn't load venues: {venues.error.message}</Text>}
+      {venues.error && <Text className="p-4 text-danger">Couldn't load venues: {venues.error.message}</Text>}
 
       <FlatList
         data={venues.data ?? []}
         keyExtractor={(v) => v.id}
         contentContainerClassName="gap-3 p-3"
-        ListEmptyComponent={venues.isLoading ? undefined : <Text className="p-4 text-ink-500">No venues nearby yet.</Text>}
+        ListEmptyComponent={venues.isLoading ? undefined : <Text className="p-4 text-fg-3">No venues nearby yet.</Text>}
         renderItem={({ item }) => (
-          <View className="rounded-card bg-white p-4">
-            <Text className="text-base font-semibold text-ink-900">{item.name}</Text>
-            <Text className="text-ink-500">
+          <View className="rounded-panel bg-surface p-4">
+            <Text className="text-base font-semibold text-fg">{item.name}</Text>
+            <Text className="text-fg-3">
               {item.city} · {(item.distance_m / 1000).toFixed(1)} km
             </Text>
-            <Text className="mt-1 text-ink-700">From ₱{(item.min_hourly_rate_cents / 100).toFixed(0)} / hour</Text>
+            <Text className="mt-1 text-fg-2">From ₱{(item.min_hourly_rate_cents / 100).toFixed(0)} / hour</Text>
           </View>
         )}
       />

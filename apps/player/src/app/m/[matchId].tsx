@@ -43,7 +43,7 @@ export default function MatchLobby() {
   if (!match.data) {
     return (
       <View className="flex-1 items-center justify-center p-6">
-        <Text className="text-ink-600">This match doesn't exist or isn't open to you.</Text>
+        <Text className="text-fg-2">This match doesn't exist or isn't open to you.</Text>
       </View>
     );
   }
@@ -53,14 +53,14 @@ export default function MatchLobby() {
   const spots = m.team_size * 2;
 
   return (
-    <View className="flex-1 gap-2 bg-ink-50 p-4">
-      <Text className="text-xl font-semibold capitalize text-ink-900">
+    <View className="flex-1 gap-2 bg-canvas p-4">
+      <Text className="text-xl font-semibold capitalize text-fg">
         {m.sport} · {m.team_size}v{m.team_size} · {m.mode}
       </Text>
-      <Text className="text-ink-600">
+      <Text className="text-fg-2">
         {m.venues?.name} · {new Date(m.starts_at).toLocaleString()}
       </Text>
-      <Text className="mt-4 text-ink-800">
+      <Text className="mt-4 text-fg">
         {active.length} of {spots} spots filled
       </Text>
     </View>

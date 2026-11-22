@@ -26,11 +26,11 @@ export default function MatchesScreen() {
 
   if (!session) {
     return (
-      <View className="flex-1 items-center justify-center bg-ink-50 p-6">
-        <Text className="mb-4 text-center text-ink-700">Sign in to see open matches near you.</Text>
+      <View className="flex-1 items-center justify-center bg-canvas p-6">
+        <Text className="mb-4 text-center text-fg-2">Sign in to see open matches near you.</Text>
         <Link href="/sign-in" asChild>
-          <Pressable className="rounded-full bg-brand-500 px-6 py-3">
-            <Text className="font-medium text-white">Sign in</Text>
+          <Pressable className="rounded-control bg-accent px-6 py-3">
+            <Text className="font-medium text-on-accent">Sign in</Text>
           </Pressable>
         </Link>
       </View>
@@ -39,18 +39,18 @@ export default function MatchesScreen() {
 
   return (
     <FlatList
-      className="flex-1 bg-ink-50"
+      className="flex-1 bg-canvas"
       contentContainerClassName="gap-3 p-3"
       data={matches.data ?? []}
       keyExtractor={(m) => m.id}
-      ListEmptyComponent={matches.isLoading ? undefined : <Text className="p-4 text-ink-500">No open matches right now.</Text>}
+      ListEmptyComponent={matches.isLoading ? undefined : <Text className="p-4 text-fg-3">No open matches right now.</Text>}
       renderItem={({ item }) => (
         <Link href={{ pathname: '/m/[matchId]', params: { matchId: item.id } }} asChild>
-          <Pressable className="rounded-card bg-white p-4">
-            <Text className="font-semibold text-ink-900">
+          <Pressable className="rounded-panel bg-surface p-4">
+            <Text className="font-semibold text-fg">
               {item.sport} · {item.team_size}v{item.team_size} · {item.mode}
             </Text>
-            <Text className="text-ink-500">
+            <Text className="text-fg-3">
               {item.venues?.name} · {new Date(item.starts_at).toLocaleString()}
             </Text>
           </Pressable>

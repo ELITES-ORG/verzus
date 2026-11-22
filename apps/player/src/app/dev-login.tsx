@@ -33,8 +33,8 @@ function DevLogin() {
   }
 
   return (
-    <View className="flex-1 gap-4 bg-ink-50 p-6">
-      <Text className="rounded-lg border-2 border-dashed border-brand-600 bg-white p-3 text-ink-700">
+    <View className="flex-1 gap-4 bg-canvas p-6">
+      <Text className="rounded-control border border-dashed border-accent bg-surface p-3 text-fg-2">
         Development only: signs in as seeded local players without a phone code.
       </Text>
       {players.map((p) => (
@@ -42,14 +42,14 @@ function DevLogin() {
           key={p.email}
           disabled={busy !== null}
           onPress={() => signInAs(p.email)}
-          className="rounded-card border-2 border-ink-900 bg-white p-4"
+          className="rounded-panel border-2 border-line-strong bg-surface p-4"
         >
-          <Text className="text-base font-bold text-ink-900">{busy === p.email ? 'Signing in…' : p.name}</Text>
-          <Text className="text-ink-500">{p.email}</Text>
-          <Text className="text-ink-700">{p.note}</Text>
+          <Text className="text-base font-bold text-fg">{busy === p.email ? 'Signing in…' : p.name}</Text>
+          <Text className="text-fg-3">{p.email}</Text>
+          <Text className="text-fg-2">{p.note}</Text>
         </Pressable>
       ))}
-      {error && <Text className="text-brand-700">{error}</Text>}
+      {error && <Text className="text-danger">{error}</Text>}
     </View>
   );
 }
