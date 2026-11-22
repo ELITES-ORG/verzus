@@ -7,7 +7,7 @@ dashboard, a trusted API, and Supabase.
 ```
 apps/
   player/        Expo + Expo Router + NativeWind. Web export is the PWA.
-  venue/         Vite + React + Tailwind + FullCalendar. Staff calendar and /admin.
+  venue/         Vite + React + Tailwind. Court board (staff calendar) and /admin.
   api/           Node + Hono on Render. Money, ratings, match state. Cron jobs.
   site/          Public landing page. Vite, no framework, Sakuga VFX controls (vendored).
 packages/

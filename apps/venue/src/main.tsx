@@ -7,7 +7,7 @@ import './index.css';
 import { isAdmin, SessionProvider, useSession } from './lib/session';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { JoinPage } from './pages/JoinPage';
-import { Layout } from './pages/Layout';
+import { AccountPage, Layout } from './pages/Layout';
 import { SignInPage } from './pages/SignInPage';
 import { StaffJoinPage } from './pages/StaffJoinPage';
 
@@ -52,6 +52,7 @@ const router = createBrowserRouter([
         children: [
           // Loaded on demand: FullCalendar is most of the bundle, and sign-in shouldn't wait for it.
           { index: true, lazy: async () => ({ Component: (await import('./pages/CalendarPage')).CalendarPage }) },
+          { path: 'account', element: <AccountPage /> },
           { path: 'venues/:venueId/staff', lazy: async () => ({ Component: (await import('./pages/StaffPage')).StaffPage }) },
           {
             path: 'admin',
