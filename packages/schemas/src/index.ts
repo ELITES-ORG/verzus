@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PASSWORD_MAX, USERNAME_PATTERN } from './account';
 import { MATCH_MODES, MATCH_STATUSES, SELF_ASSESSMENTS, SPORTS } from './constants';
 
 /**
@@ -61,6 +62,16 @@ export const ConfirmResultInput = z.object({
   winningTeam: z.union([z.literal(1), z.literal(2)]),
 });
 export type ConfirmResultInput = z.infer<typeof ConfirmResultInput>;
+
+/**
+ * POST /auth/username-sign-in. Sign-in with an email goes straight to Supabase; a username needs
+ * the API, which looks up the email on the server (it is never sent to the browser).
+ */
+export const UsernameSignInInput = z.object({
+  username: z.string().trim().toLowerCase().regex(USERNAME_PATTERN),
+  password: z.string().min(1).max(PASSWORD_MAX),
+});
+export type UsernameSignInInput = z.infer<typeof UsernameSignInInput>;
 
 /** POST /matches/:id/dispute */
 export const DisputeResultInput = z.object({
