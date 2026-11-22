@@ -107,6 +107,7 @@ sakuga-checkbox::part(label) {
 .section-title {
   font: 400 clamp(34px, 4.8vw, 62px) / 1.04 var(--display);
   letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 .section-title--light {
   color: #fff;
@@ -789,6 +790,7 @@ sakuga-checkbox::part(label) {
   font: 400 15px / 1.4 var(--dot);
   color: var(--lav);
   min-height: 1.4em;
+  text-wrap: balance;
 }
 
 .arena__actions {
@@ -801,8 +803,9 @@ sakuga-checkbox::part(label) {
 .arena__fine {
   margin-top: 26px;
   text-align: center;
-  font: 400 12px / 1 var(--dot);
+  font: 400 12px / 1.5 var(--dot);
   color: var(--dim);
+  text-wrap: balance;
 }
 .arena__toast {
   /* Hidden toasts keep their box; don't let it eat clicks in the corner. Its close button stays keyboard-reachable. */
@@ -973,7 +976,8 @@ sakuga-checkbox::part(label) {
   letter-spacing: 3px;
 }
 .stamp__num {
-  font: 400 56px var(--display);
+  /* Fits inside the inner ring (r 80) with room to spare. */
+  font: 400 46px var(--display);
   fill: var(--accent);
   text-anchor: middle;
 }
@@ -1299,12 +1303,26 @@ sakuga-checkbox::part(label) {
   }
   .hero {
     min-height: 0;
-    padding-top: 104px;
+    /* Clears the whole 対戦 below (its top + height + a gap). */
+    padding-top: calc(18px + min(58vw, 230px) * 0.41 + 26px);
   }
+  /* On wide screens the 対戦 bleeds off the top of the panel; on a phone that just looks cut off,
+     so it sits whole inside the panel instead. (0.41 is its height over its width.) */
   .hero__kanji {
-    right: 10px;
-    top: -20px;
-    width: 210px;
+    right: 18px;
+    top: 18px;
+    width: min(58vw, 230px);
+  }
+  /* Titles wrap on their own here: the line breaks set for wide screens leave ragged lines. */
+  .section-title br {
+    display: none;
+  }
+  /* The player card: the reliability pill moves under the name instead of squeezing it. */
+  .card {
+    flex-wrap: wrap;
+  }
+  .card__rel {
+    margin-left: 62px;
   }
   /* Four tabs are a touch wider than a phone's content box. */
   sakuga-tabs {
