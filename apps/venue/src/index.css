@@ -24,8 +24,8 @@
   height: 28px;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
-  background: #dd2b37;
-  border: 3px solid #1d1a4a;
+  background: rgb(var(--mark));
+  border: 3px solid rgb(var(--fg));
   box-shadow: 0 6px 14px -4px rgb(29 26 74 / 0.55);
 }
 .vz-pin__head::after {
@@ -43,7 +43,7 @@
   height: 14px;
   margin-left: -22px;
   border-radius: 50%;
-  border: 2px solid #dd2b37;
+  border: 2px solid rgb(var(--mark));
   opacity: 0;
 }
 .vz-pin--drop .vz-pin__body {

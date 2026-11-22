@@ -77,27 +77,27 @@ export function StaffPage() {
   }
 
   if (venues.isLoading) return null;
-  if (venue?.role !== 'owner') return <p className="text-ink-600">Only the venue's owner can manage staff.</p>;
+  if (venue?.role !== 'owner') return <p className="text-fg-2">Only the venue's owner can manage staff.</p>;
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">
       <header className="space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">{venue.name}</p>
-        <h1 className="text-2xl font-bold text-ink-900">Staff</h1>
-        <p className="text-ink-600">
+        <p className="text-xs font-semibold uppercase tracking-wide text-fg-3">{venue.name}</p>
+        <h1 className="text-2xl font-bold text-fg">Staff</h1>
+        <p className="text-fg-2">
           Staff can use the calendar: add walk-ins and phone bookings, block slots. Only you can change the venue's details,
           courts, rates and photos.
         </p>
       </header>
 
       <section className="space-y-3">
-        <h2 className="font-bold text-ink-900">People with access</h2>
-        <ul className="divide-y-2 divide-ink-100 rounded-card border-2 border-ink-200 bg-white">
+        <h2 className="font-bold text-fg">People with access</h2>
+        <ul className="divide-y-2 divide-line rounded-panel border-2 border-line bg-surface">
           {people.data?.map((p) => (
             <li key={p.user_id} className="flex flex-wrap items-center gap-3 px-4 py-3">
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-ink-900">{p.email}</p>
-                <p className="text-sm text-ink-500">{p.role === 'owner' ? 'Owner' : 'Staff'}</p>
+                <p className="font-semibold text-fg">{p.email}</p>
+                <p className="text-sm text-fg-3">{p.role === 'owner' ? 'Owner' : 'Staff'}</p>
               </div>
               {p.user_id !== session?.user.id && (
                 <Button variant="danger" onClick={() => removePerson(p.user_id, p.email)}>
@@ -110,7 +110,7 @@ export function StaffPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="font-bold text-ink-900">Invite someone</h2>
+        <h2 className="font-bold text-fg">Invite someone</h2>
         <form onSubmit={create} className="flex flex-wrap items-end gap-3">
           <div className="min-w-60 flex-1">
             <Field label="Who's it for?" hint="Only you see this, to tell invites apart.">
@@ -126,7 +126,7 @@ export function StaffPage() {
             {busy ? 'Creating…' : 'Create invite link'}
           </Button>
         </form>
-        <p className="text-sm text-ink-500">
+        <p className="text-sm text-fg-3">
           Send the link to them yourself (Messenger, Viber, SMS). It works once and expires in 7 days.
         </p>
         <SaveNote error={error} saved={false} />
@@ -136,11 +136,11 @@ export function StaffPage() {
             {invites.data.map((i) => (
               <li
                 key={i.token}
-                className="flex flex-wrap items-center gap-3 rounded-lg border-2 border-ink-200 bg-white px-4 py-3"
+                className="flex flex-wrap items-center gap-3 rounded-control border-2 border-line bg-surface px-4 py-3"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-ink-900">{i.note || 'Staff invite'}</p>
-                  <p className="truncate text-xs text-ink-500">
+                  <p className="font-semibold text-fg">{i.note || 'Staff invite'}</p>
+                  <p className="truncate text-xs text-fg-3">
                     {link(i.token)} · expires {new Date(i.expires_at).toLocaleDateString()}
                   </p>
                 </div>

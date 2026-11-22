@@ -16,13 +16,13 @@ export function AdminLayout() {
     },
   });
   const tab = ({ isActive }: { isActive: boolean }) =>
-    `border-b-[3px] px-1 pb-2 text-sm font-semibold ${isActive ? 'border-[#dd2b37] text-ink-900' : 'border-transparent text-ink-500 hover:text-ink-900'}`;
+    `border-b-[3px] px-1 pb-2 text-sm font-semibold ${isActive ? 'border-accent text-fg' : 'border-transparent text-fg-3 hover:text-fg'}`;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <header className="space-y-3">
-        <h1 className="text-2xl font-bold text-ink-900">Admin</h1>
-        <nav className="flex gap-6 border-b-2 border-ink-200">
+        <h1 className="text-2xl font-bold text-fg">Admin</h1>
+        <nav className="flex gap-6 border-b-2 border-line">
           <NavLink to="/admin" end className={tab}>
             Review{waiting.data ? ` (${waiting.data})` : ''}
           </NavLink>

@@ -23,12 +23,12 @@ export function DisputesPage() {
     <section className="space-y-3">
       <h1 className="text-lg font-semibold">Open disputes</h1>
       {disputes.isLoading && <p>Loading…</p>}
-      {disputes.data?.length === 0 && <p className="text-ink-500">No open disputes.</p>}
+      {disputes.data?.length === 0 && <p className="text-fg-3">No open disputes.</p>}
       <ul className="space-y-2">
         {disputes.data?.map((d) => (
-          <li key={d.id} className="rounded-card bg-white p-3 shadow">
+          <li key={d.id} className="rounded-panel bg-surface p-3 shadow">
             <p className="text-sm">{d.reason}</p>
-            <p className="text-xs text-ink-500">
+            <p className="text-xs text-fg-3">
               Match {d.match_id} · {new Date(d.created_at).toLocaleString()}
             </p>
           </li>

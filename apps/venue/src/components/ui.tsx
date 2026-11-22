@@ -1,17 +1,20 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 
-/** Small set of form pieces so every portal screen looks and behaves the same. */
+/**
+ * Small set of form pieces so every portal screen looks and behaves the same. Colours come from
+ * the theme (@verzus/tailwind/theme.css), so they work in light and dark.
+ */
 
 const inputBase =
-  'w-full rounded-lg border-2 border-ink-200 bg-white px-3 py-2 text-ink-900 focus:border-ink-900 focus:outline-none disabled:bg-ink-50';
+  'w-full rounded-control border border-line-strong bg-surface px-3 py-2 text-fg placeholder:text-fg-3 focus:border-violet focus:outline-none focus:ring-[3px] focus:ring-violet/25 disabled:bg-surface-2 disabled:text-fg-3';
 
 export function Field({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
   return (
     // biome-ignore lint/a11y/noLabelWithoutControl: the control is passed in as children.
-    <label className="block space-y-1">
-      <span className="text-sm font-semibold text-ink-800">{label}</span>
+    <label className="block space-y-1.5">
+      <span className="text-sm font-semibold text-fg">{label}</span>
       {children}
-      {hint && <span className="block text-xs text-ink-500">{hint}</span>}
+      {hint && <span className="block text-xs text-fg-3">{hint}</span>}
     </label>
   );
 }
@@ -30,17 +33,18 @@ export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' };
 
+/** Green for the main action, an outlined surface for the rest, red text for what deletes or stops. */
 export function Button({ variant = 'primary', className = '', type = 'button', ...props }: ButtonProps) {
   const look = {
-    primary: 'bg-ink-900 text-white hover:bg-ink-800',
-    secondary: 'border-2 border-ink-900 text-ink-900 hover:bg-ink-50',
-    danger: 'text-[#b51f2a] hover:bg-[#fdecee]',
+    primary: 'bg-accent text-on-accent shadow-[0_8px_22px_-14px_rgb(var(--accent)/0.8)] hover:bg-accent-hover',
+    secondary: 'border border-line-strong bg-surface text-fg hover:border-violet',
+    danger: 'border border-danger/40 bg-surface text-danger hover:bg-danger-soft',
   }[variant];
   return (
     <button
       type={type}
       {...props}
-      className={`rounded-lg px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${look} ${className}`}
+      className={`rounded-control px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-violet/50 disabled:cursor-not-allowed disabled:opacity-50 ${look} ${className}`}
     />
   );
 }
@@ -49,13 +53,13 @@ export function Button({ variant = 'primary', className = '', type = 'button', .
 export function SaveNote({ error, saved }: { error: string | null; saved: boolean }) {
   if (error)
     return (
-      <p role="alert" className="text-sm font-medium text-[#b51f2a]">
+      <p role="alert" className="text-sm font-medium text-danger">
         {error}
       </p>
     );
   if (saved)
     return (
-      <p role="status" className="text-sm font-medium text-ink-600">
+      <p role="status" className="text-sm font-medium text-accent">
         Saved.
       </p>
     );
@@ -79,23 +83,31 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
         if (e.target === e.currentTarget) onClose();
       }}
       aria-label={title}
-      className="w-[min(92vw,420px)] rounded-card border-[3px] border-ink-900 p-0 shadow-[6px_7px_0_#b8b3ff] backdrop:bg-ink-900/40"
+      className="w-[min(92vw,420px)] rounded-panel border border-line bg-surface p-0 text-fg shadow-[0_24px_60px_-20px_rgb(var(--scrim)/0.5)] backdrop:bg-scrim/50 backdrop:backdrop-blur-sm"
     >
       <div className="space-y-4 p-5">
-        <h2 className="text-lg font-bold text-ink-900">{title}</h2>
+        <h2 className="text-lg font-bold text-fg">{title}</h2>
         {children}
       </div>
     </dialog>
   );
 }
 
+/**
+ * A venue's status as a solid tag in the colour of what it means: green live, amber waiting for
+ * review, red suspended, neutral draft. Text uses the colour that reads on each fill in both themes.
+ */
 export function StatusPill({ status }: { status: 'draft' | 'submitted' | 'live' | 'suspended' }) {
   const look = {
-    draft: 'bg-ink-100 text-ink-700',
-    submitted: 'bg-[#fff4d6] text-[#7a5a00]',
-    live: 'bg-[#e5f6ea] text-[#1f6b35]',
-    suspended: 'bg-[#fdecee] text-[#b51f2a]',
+    draft: 'bg-line-strong text-fg',
+    submitted: 'bg-warn text-surface',
+    live: 'bg-accent text-on-accent',
+    suspended: 'bg-danger text-surface',
   }[status];
   const text = { draft: 'Draft', submitted: 'Waiting for review', live: 'Live', suspended: 'Suspended' }[status];
-  return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${look}`}>{text}</span>;
+  return (
+    <span className={`inline-flex h-[22px] items-center rounded-chip px-2 text-xs font-semibold leading-none ${look}`}>
+      {text}
+    </span>
+  );
 }

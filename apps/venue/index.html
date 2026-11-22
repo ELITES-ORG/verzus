@@ -5,8 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>verzus for Venues</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      // The person's theme choice (lib/theme.ts), applied before the first paint. No choice: follow the device.
+      try {
+        const t = localStorage.getItem('verzus-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {
+        // Storage blocked: follow the device.
+      }
+    </script>
   </head>
-  <body class="bg-ink-50 text-ink-900 antialiased">
+  <body class="theme-scheme bg-canvas text-fg antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

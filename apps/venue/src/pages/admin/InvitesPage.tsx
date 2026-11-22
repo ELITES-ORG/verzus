@@ -66,20 +66,20 @@ export function InvitesPage() {
           {busy ? 'Creating…' : 'Create invite link'}
         </Button>
       </form>
-      <p className="text-sm text-ink-500">
+      <p className="text-sm text-fg-3">
         The link is copied when you create it. It works once, for 14 days, and lets the owner create one draft venue.
       </p>
       <SaveNote error={error} saved={false} />
 
-      <ul className="divide-y-2 divide-ink-100 rounded-card border-2 border-ink-200 bg-white">
+      <ul className="divide-y-2 divide-line rounded-panel border-2 border-line bg-surface">
         {invites.data?.map((i) => {
           const used = Boolean(i.redeemed_at);
           const expired = !used && new Date(i.expires_at).getTime() < now;
           return (
             <li key={i.token} className="flex flex-wrap items-center gap-3 px-4 py-3">
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-ink-900">{i.note || 'Owner invite'}</p>
-                <p className="text-sm text-ink-500">
+                <p className="font-semibold text-fg">{i.note || 'Owner invite'}</p>
+                <p className="text-sm text-fg-3">
                   {used ? (
                     <>
                       Used:{' '}
@@ -116,7 +116,7 @@ export function InvitesPage() {
             </li>
           );
         })}
-        {invites.data?.length === 0 && <li className="px-4 py-6 text-center text-ink-500">No invites yet.</li>}
+        {invites.data?.length === 0 && <li className="px-4 py-6 text-center text-fg-3">No invites yet.</li>}
       </ul>
     </section>
   );

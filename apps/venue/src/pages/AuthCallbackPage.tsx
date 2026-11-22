@@ -23,16 +23,16 @@ export function AuthCallbackPage() {
 
   const retry = `/sign-in?next=${encodeURIComponent(next)}`;
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ink-50 px-4">
-      <div className="max-w-sm space-y-3 text-center text-ink-700">
+    <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
+      <div className="max-w-sm space-y-3 text-center text-fg-2">
         {failure || slow ? (
           <>
-            <p className="font-semibold text-ink-900">That sign-in link didn't work here.</p>
+            <p className="font-semibold text-fg">That sign-in link didn't work here.</p>
             <p className="text-sm">
               Links only work in the browser where you asked for them, and only once. Use the 6-digit code from the same email
               instead.
             </p>
-            <Link to={retry} className="inline-block font-semibold text-[#b51f2a] underline">
+            <Link to={retry} className="inline-block font-semibold text-danger underline">
               Back to sign in
             </Link>
           </>

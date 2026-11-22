@@ -79,18 +79,18 @@ export function DevLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ink-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
       <div className="w-full max-w-md space-y-5">
         <p className="flex items-end gap-2">
           <Mark className="text-[30px]" />
-          <span className="pb-0.5 text-sm font-medium text-ink-500">dev login</span>
+          <span className="pb-0.5 text-sm font-medium text-fg-3">dev login</span>
         </p>
-        <div className="rounded-lg border-2 border-dashed border-[#dd2b37] bg-white px-4 py-3 text-sm text-ink-700">
+        <div className="rounded-control border-2 border-dashed border-accent bg-surface px-4 py-3 text-sm text-fg-2">
           Development only: signs in as the seeded local accounts without email. Not part of production builds.
         </div>
 
         {!LOCAL ? (
-          <p className="text-sm font-medium text-[#b51f2a]">Disabled: this app points at {url.host}, not a local Supabase.</p>
+          <p className="text-sm font-medium text-danger">Disabled: this app points at {url.host}, not a local Supabase.</p>
         ) : (
           <ul className="space-y-3">
             {ACCOUNTS.map((a) => (
@@ -99,22 +99,22 @@ export function DevLoginPage() {
                   type="button"
                   disabled={busy !== null}
                   onClick={() => signInAs(a)}
-                  className="w-full rounded-card border-[3px] border-ink-900 bg-white p-4 text-left shadow-[5px_6px_0_#b8b3ff] hover:-translate-y-0.5 disabled:opacity-60"
+                  className="w-full rounded-panel border border-line bg-surface p-4 text-left shadow-[0_18px_40px_-26px_rgb(var(--scrim)/0.4)] hover:-translate-y-0.5 disabled:opacity-60"
                 >
-                  <span className="block font-bold text-ink-900">{busy === a.email ? 'Signing in…' : a.role}</span>
-                  <span className="block text-sm text-ink-500">{a.email}</span>
-                  <span className="mt-1 block text-sm text-ink-700">{a.does}</span>
+                  <span className="block font-bold text-fg">{busy === a.email ? 'Signing in…' : a.role}</span>
+                  <span className="block text-sm text-fg-3">{a.email}</span>
+                  <span className="mt-1 block text-sm text-fg-2">{a.does}</span>
                 </button>
               </li>
             ))}
           </ul>
         )}
         {error && (
-          <p role="alert" className="text-sm font-medium text-[#b51f2a]">
+          <p role="alert" className="text-sm font-medium text-danger">
             {error}
           </p>
         )}
-        <p className="text-xs text-ink-500">
+        <p className="text-xs text-fg-3">
           Players sign in on the player app's dev login (player1@verzus.local, player2@verzus.local). Password for all:{' '}
           <code>{PASSWORD}</code>.
         </p>

@@ -32,30 +32,30 @@ export function JoinPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ink-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
       <div className="w-full max-w-sm">
         <p className="mb-6 flex items-end gap-2">
           <Mark className="text-[30px]" />
-          <span className="pb-0.5 text-sm font-medium text-ink-500">for venues</span>
+          <span className="pb-0.5 text-sm font-medium text-fg-3">for venues</span>
         </p>
         <form
           onSubmit={create}
-          className="space-y-5 rounded-card border-[3px] border-ink-900 bg-white p-6 shadow-[6px_7px_0_#b8b3ff]"
+          className="space-y-5 rounded-panel border border-line bg-surface p-6 shadow-[0_18px_40px_-26px_rgb(var(--scrim)/0.4)]"
         >
           <div className="space-y-1">
-            <h1 className="text-xl font-bold text-ink-900">You're invited to list your venue</h1>
-            <p className="text-sm text-ink-500">
+            <h1 className="text-xl font-bold text-fg">You're invited to list your venue</h1>
+            <p className="text-sm text-fg-3">
               Start with its name. You'll add the address, courts, rates, hours and photos next, then send it to us to review.
             </p>
           </div>
           <label className="block space-y-1">
-            <span className="text-sm font-medium text-ink-700">Venue name</span>
+            <span className="text-sm font-medium text-fg-2">Venue name</span>
             <input
               required
               minLength={2}
               maxLength={80}
               placeholder="e.g. Smash Hall BGC"
-              className="w-full rounded-lg border-2 border-ink-200 px-3 py-2 focus:border-ink-900 focus:outline-none"
+              className="w-full rounded-control border-2 border-line px-3 py-2 focus:border-line-strong focus:outline-none"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -63,12 +63,12 @@ export function JoinPage() {
           <button
             type="submit"
             disabled={busy || name.trim().length < 2}
-            className="w-full rounded-lg bg-ink-900 py-2.5 font-semibold text-white hover:bg-ink-800 disabled:opacity-60"
+            className="w-full rounded-control bg-accent py-2.5 font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60"
           >
             {busy ? 'Creating…' : 'Create my venue'}
           </button>
           {error && (
-            <p role="alert" className="text-sm font-medium text-[#b51f2a]">
+            <p role="alert" className="text-sm font-medium text-danger">
               {error}
             </p>
           )}

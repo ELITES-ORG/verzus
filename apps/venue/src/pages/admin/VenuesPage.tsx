@@ -28,7 +28,7 @@ export function VenuesPage({ queue = false }: { queue?: boolean }) {
   return (
     <section className="space-y-4">
       {queue ? (
-        <p className="text-ink-600">Venues waiting for you, oldest first. Open one to approve it or send it back with a note.</p>
+        <p className="text-fg-2">Venues waiting for you, oldest first. Open one to approve it or send it back with a note.</p>
       ) : (
         <div className="max-w-xs">
           <Select aria-label="Filter by status" value={filter} onChange={(e) => setFilter(e.target.value as Status | 'all')}>
@@ -42,18 +42,18 @@ export function VenuesPage({ queue = false }: { queue?: boolean }) {
       )}
 
       {venues.data?.length === 0 && (
-        <p className="rounded-card border-2 border-dashed border-ink-200 p-8 text-center text-ink-500">
+        <p className="rounded-panel border-2 border-dashed border-line p-8 text-center text-fg-3">
           {queue ? 'Nothing to review.' : 'No venues with that status.'}
         </p>
       )}
 
-      <ul className="divide-y-2 divide-ink-100 rounded-card border-2 border-ink-200 bg-white">
+      <ul className="divide-y-2 divide-line rounded-panel border-2 border-line bg-surface">
         {venues.data?.map((v) => (
           <li key={v.id}>
-            <Link to={`/admin/venues/${v.id}`} className="flex flex-wrap items-center gap-3 px-4 py-3 hover:bg-ink-50">
+            <Link to={`/admin/venues/${v.id}`} className="flex flex-wrap items-center gap-3 px-4 py-3 hover:bg-surface-2">
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-ink-900">{v.name}</p>
-                <p className="text-sm text-ink-500">
+                <p className="font-semibold text-fg">{v.name}</p>
+                <p className="text-sm text-fg-3">
                   {v.city ?? 'No city yet'}
                   {v.submitted_at && ` · submitted ${new Date(v.submitted_at).toLocaleString()}`}
                 </p>
