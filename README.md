@@ -162,6 +162,10 @@ provider must be chosen and added under `apps/api/src/adapters/payments/` first.
 - SMS provider for phone login (configured in the Supabase dashboard).
 - Address search (geocoding), if players need to search places. Maps themselves are decided:
   MapLibre with OpenFreeMap tiles (free, no key); `VITE_MAP_STYLE_URL` swaps the tile provider.
+  The venue app's location step names the pin with OSM Nominatim's public geocoder (fair use,
+  about 1 request a second); `VITE_GEOCODE_URL` swaps it. Its province / city / barangay lists
+  are the PSA's PSGC, shipped as static files in `apps/venue/public/psgc`; refresh them with
+  `node scripts/psgc.mjs`.
 - Policy questions: what happens when nobody joins an open match; whether unconfirmed results
   auto-confirm after a timeout; payout schedule; platform fee.
 

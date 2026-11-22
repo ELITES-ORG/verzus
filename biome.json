@@ -7,7 +7,15 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/database.types.ts", "!**/public/index.html", "!**/assets", "!supabase", "!**/public/sakuga-vfx"]
+    "includes": [
+      "**",
+      "!**/database.types.ts",
+      "!**/public/index.html",
+      "!**/assets",
+      "!supabase",
+      "!**/public/sakuga-vfx",
+      "!**/public/psgc"
+    ]
   },
   "formatter": {
     "enabled": true,

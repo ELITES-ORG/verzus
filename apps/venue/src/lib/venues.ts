@@ -31,6 +31,18 @@ export function useMyVenues() {
   });
 }
 
+/** A venue's full address, street to province, skipping parts it doesn't have. */
+export function fullAddress(v: {
+  address: string | null;
+  barangay: string | null;
+  city: string | null;
+  province: string | null;
+}): string {
+  const parts = [v.address, v.barangay, v.city, v.province].map((p) => p?.trim()).filter(Boolean);
+  // The owner's own address line may already name the barangay or city; don't say it twice.
+  return parts.filter((p, i) => parts.findIndex((q) => q?.toLowerCase() === p?.toLowerCase()) === i).join(', ');
+}
+
 /** Copies text to the clipboard; resolves false if the browser refuses. */
 export async function copy(text: string): Promise<boolean> {
   try {
