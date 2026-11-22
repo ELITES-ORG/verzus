@@ -1,19 +1,36 @@
 /**
- * verzus brand tokens. Placeholder palette until the real brand is designed:
- * change values here and both the player app and venue dashboard follow.
+ * verzus brand tokens: green. Green means go (main buttons, chosen, done); red means danger
+ * (errors, delete) and nothing else. Change values here and both apps follow.
+ * - brand-500 is the bright green of the logo's "v" and of marks with no text on them.
+ * - brand-600 is for white text on green (5.0:1, WCAG AA) and green text on light grounds.
  */
 const brand = {
-  50: '#fff4ed',
-  100: '#ffe6d4',
-  200: '#ffc9a8',
-  300: '#ffa371',
-  400: '#ff7238',
-  500: '#fe4c11',
-  600: '#ef3207',
-  700: '#c62208',
-  800: '#9d1d0f',
-  900: '#7e1b10',
-  950: '#440a06',
+  50: '#effdf4',
+  100: '#dcfce7',
+  200: '#bbf7d0',
+  300: '#86efac',
+  400: '#4ade80',
+  500: '#22c55e',
+  600: '#15803d',
+  700: '#166534',
+  800: '#14532d',
+  900: '#0f3f22',
+  950: '#052e16',
+};
+
+/** Danger: errors, missing required fields, delete. 300 is for text on dark grounds. */
+const danger = {
+  50: '#fdecee',
+  100: '#fbd5d9',
+  200: '#f8b0b7',
+  300: '#ff8a92',
+  400: '#f0545e',
+  500: '#dd2b37',
+  600: '#c0222e',
+  700: '#b51f2a',
+  800: '#8a1a23',
+  900: '#701a22',
+  950: '#3d080d',
 };
 
 const ink = {
@@ -39,4 +56,4 @@ const tier = {
   diamond: '#5b8cff',
 };
 
-module.exports = { brand, ink, tier };
+module.exports = { brand, danger, ink, tier };

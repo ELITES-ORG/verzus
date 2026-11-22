@@ -5,6 +5,11 @@
   "main": "./preset.js",
   "exports": {
     ".": "./preset.js",
-    "./colors": "./colors.js"
+    "./colors": "./colors.js",
+    "./themes": {
+      "types": "./themes.d.ts",
+      "default": "./themes.js"
+    },
+    "./theme-plugin": "./theme-plugin.js"
   }
 }
