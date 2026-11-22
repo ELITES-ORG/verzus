@@ -309,16 +309,36 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"profiles": {
+                },"player_details": {
                   Row: {
-                    "avatar_path": string | null,"created_at": string,"display_name": string,"home_city": string | null,"id": string,"updated_at": string
+                    "barangay": string,"city": string,"created_at": string,"first_name": string,"id": string,"last_name": string,"middle_name": string | null,"phone": string,"province": string,"suffix": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_path"?: string | null,"created_at"?: string,"display_name"?: string,"home_city"?: string | null,"id": string,"updated_at"?: string
+                    "barangay": string,"city": string,"created_at"?: string,"first_name": string,"id": string,"last_name": string,"middle_name"?: string | null,"phone": string,"province": string,"suffix"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "avatar_path"?: string | null,"created_at"?: string,"display_name"?: string,"home_city"?: string | null,"id"?: string,"updated_at"?: string
+                    "barangay"?: string,"city"?: string,"created_at"?: string,"first_name"?: string,"id"?: string,"last_name"?: string,"middle_name"?: string | null,"phone"?: string,"province"?: string,"suffix"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "player_details_id_fkey"
+      columns: ["id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"profiles": {
+                  Row: {
+                    "avatar_path": string | null,"created_at": string,"display_name": string,"home_city": string | null,"id": string,"sports": (Database["public"]['Enums']["sport"])[],"updated_at": string,"username": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "avatar_path"?: string | null,"created_at"?: string,"display_name"?: string,"home_city"?: string | null,"id": string,"sports"?: (Database["public"]['Enums']["sport"])[],"updated_at"?: string,"username"?: string | null
+                  }
+                  Update: {
+                    "avatar_path"?: string | null,"created_at"?: string,"display_name"?: string,"home_city"?: string | null,"id"?: string,"sports"?: (Database["public"]['Enums']["sport"])[],"updated_at"?: string,"username"?: string | null
                   }
                   Relationships: [
                     
@@ -576,6 +596,9 @@ isOneToOne: false
 "court_venue":
 { Args: { "p_court_id": string }; Returns: string
                            },
+"create_my_venue":
+{ Args: { "p_venue_name": string }; Returns: string
+                           },
 "expire_holds":
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
@@ -591,6 +614,9 @@ isOneToOne: false
 "is_venue_member":
 { Args: { "p_owner_only"?: boolean,"p_venue_id": string }; Returns: boolean
                            },
+"login_email":
+{ Args: { "p_username": string }; Returns: string
+                           },
 "paths_in_venue_folder":
 { Args: { "p_paths": (string)[],"p_venue_id": string }; Returns: boolean
                            },
@@ -604,6 +630,9 @@ isOneToOne: false
                            },
 "redeem_venue_invite":
 { Args: { "p_token": string,"p_venue_name": string }; Returns: string
+                           },
+"username_available":
+{ Args: { "p_username": string }; Returns: boolean
                            },
 "venue_people":
 { Args: { "p_venue_id": string }; Returns: {

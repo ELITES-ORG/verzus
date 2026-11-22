@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./constants": "./src/constants.ts",
-    "./phone": "./src/phone.ts"
+    "./phone": "./src/phone.ts",
+    "./account": "./src/account.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

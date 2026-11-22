@@ -1,7 +1,7 @@
 import { type FormEvent, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
-import { Mark } from '../components/Mark';
-import { ThemeSwitch } from '../components/ThemeSwitch';
+import { AuthCard, AuthError, AuthField, authInput, authLink, authPrimary } from '../components/AuthCard';
+import { friendly } from '../lib/auth-errors';
 import { callbackUrl, safeNext } from '../lib/next';
 import { useSession } from '../lib/session';
 import { supabase } from '../lib/supabase';
@@ -9,8 +9,9 @@ import { supabase } from '../lib/supabase';
 const GOOGLE = import.meta.env.VITE_GOOGLE_SIGN_IN === 'on';
 
 /**
- * Venue owners and staff sign in with an emailed code (or the link in the same email), or Google.
- * The code works on any device; the link only in the browser that asked for it.
+ * Owners and staff sign in with their email and password. Anyone without a password (staff who
+ * joined by invite, or someone who forgot theirs) can have a code emailed instead; the link in
+ * that email works too, in the browser that asked for it. Google when it's switched on.
  */
 export function SignInPage() {
   const { session } = useSession();
@@ -19,12 +20,31 @@ export function SignInPage() {
   const next = safeNext(params.get('next'));
 
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
-  const [step, setStep] = useState<'email' | 'code'>('email');
+  const [step, setStep] = useState<'password' | 'email' | 'code'>('password');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (session) return <Navigate to={next} replace />;
+
+  async function withPassword(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    setBusy(false);
+    if (error) {
+      return setError(
+        error.code === 'email_not_confirmed'
+          ? 'Confirm your email first: open the link we sent when you registered.'
+          : error.status === 400
+            ? 'Wrong email or password. No password yet? Get a code by email instead.'
+            : friendly(error),
+      );
+    }
+    navigate(next, { replace: true });
+  }
 
   async function sendCode(e?: FormEvent) {
     e?.preventDefault();
@@ -35,7 +55,7 @@ export function SignInPage() {
       options: { emailRedirectTo: callbackUrl(next), shouldCreateUser: true },
     });
     setBusy(false);
-    if (error) return setError(error.message);
+    if (error) return setError(friendly(error));
     setStep('code');
   }
 
@@ -52,115 +72,141 @@ export function SignInPage() {
   async function google() {
     setError(null);
     const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: callbackUrl(next) } });
-    if (error) setError(error.message);
+    if (error) setError(friendly(error));
   }
 
   const invited = next.startsWith('/join/') || next.startsWith('/staff/');
+  const go = (s: typeof step) => {
+    setError(null);
+    setStep(s);
+  };
+
+  const emailField = (
+    <AuthField label="Email">
+      <input
+        type="email"
+        required
+        autoComplete="email"
+        className={authInput}
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+    </AuthField>
+  );
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-canvas px-4">
-      <ThemeSwitch className="absolute right-4 top-4" />
-      <div className="w-full max-w-sm">
-        <p className="mb-6 flex items-end gap-2 text-fg">
-          <Mark className="text-[30px]" />
-          <span className="pb-0.5 text-sm font-medium text-fg-3">for venues</span>
-        </p>
-
-        <div className="space-y-5 rounded-panel border border-line bg-surface p-6 shadow-[0_18px_40px_-26px_rgb(var(--scrim)/0.4)]">
-          {step === 'email' ? (
-            <>
-              <div className="space-y-1">
-                <h1 className="text-xl font-bold text-fg">{invited ? 'Sign in to accept your invite' : 'Sign in'}</h1>
-                <p className="text-sm text-fg-3">We'll email you a code. No password needed.</p>
-              </div>
-
-              {GOOGLE && (
-                <>
-                  <button
-                    type="button"
-                    onClick={google}
-                    className="w-full rounded-control border border-line-strong py-2.5 font-semibold text-fg hover:bg-surface-2"
-                  >
-                    Continue with Google
-                  </button>
-                  <p className="text-center text-xs text-fg-3">or</p>
-                </>
-              )}
-
-              <form onSubmit={sendCode} className="space-y-3">
-                <label className="block space-y-1">
-                  <span className="text-sm font-medium text-fg-2">Email</span>
-                  <input
-                    type="email"
-                    required
-                    autoComplete="email"
-                    className="w-full rounded-control border-2 border-line-strong bg-surface px-3 py-2 text-fg placeholder:text-fg-3 focus:border-violet focus:outline-none"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </label>
-                <button
-                  type="submit"
-                  disabled={busy}
-                  className="w-full rounded-control bg-accent py-2.5 font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60"
-                >
-                  {busy ? 'Sending…' : 'Email me a code'}
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <div className="space-y-1">
-                <h1 className="text-xl font-bold text-fg">Check your email</h1>
-                <p className="text-sm text-fg-3">
-                  We sent a 6-digit code to <span className="font-semibold text-fg">{email}</span>. You can also open the link in
-                  that email on this device.
-                </p>
-              </div>
-              <form onSubmit={verify} className="space-y-3">
-                <input
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  pattern="[0-9]{6}"
-                  maxLength={6}
-                  required
-                  placeholder="123456"
-                  aria-label="6-digit code"
-                  className="w-full rounded-control border-2 border-line-strong bg-surface px-3 py-2 text-center font-mono text-2xl tracking-[0.4em] text-fg placeholder:text-fg-3 focus:border-violet focus:outline-none"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                />
-                <button
-                  type="submit"
-                  disabled={busy || code.length !== 6}
-                  className="w-full rounded-control bg-accent py-2.5 font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60"
-                >
-                  {busy ? 'Checking…' : 'Sign in'}
-                </button>
-              </form>
-              <div className="flex justify-between text-sm">
-                <button type="button" className="text-fg-3 hover:text-fg" onClick={() => setStep('email')}>
-                  Use a different email
-                </button>
-                <button type="button" disabled={busy} className="text-fg-3 hover:text-fg" onClick={() => sendCode()}>
-                  Send a new code
-                </button>
-              </div>
-            </>
-          )}
-
-          {error && (
-            <p role="alert" className="text-sm font-medium text-danger">
-              {error}
+    <AuthCard
+      below={
+        <>
+          {!invited && (
+            <p className="mt-4 text-center text-sm text-fg-3">
+              New to verzus?{' '}
+              <Link to="/register" className={authLink}>
+                List your venue
+              </Link>
             </p>
           )}
-        </div>
-        {import.meta.env.DEV && (
-          <Link to="/dev-login" className="mt-4 block text-center text-sm font-semibold text-fg-3 underline hover:text-fg">
-            Dev login (local only)
-          </Link>
-        )}
-      </div>
-    </div>
+          {import.meta.env.DEV && (
+            <Link to="/dev-login" className="mt-3 block text-center text-sm font-semibold text-fg-3 underline hover:text-fg">
+              Dev login (local only)
+            </Link>
+          )}
+        </>
+      }
+    >
+      {step === 'password' && (
+        <>
+          <h1 className="text-xl font-bold text-fg">{invited ? 'Sign in to accept your invite' : 'Sign in'}</h1>
+          {GOOGLE && (
+            <>
+              <button
+                type="button"
+                onClick={google}
+                className="w-full rounded-control border border-line-strong py-2.5 font-semibold text-fg hover:bg-surface-2"
+              >
+                Continue with Google
+              </button>
+              <p className="text-center text-xs text-fg-3">or</p>
+            </>
+          )}
+          <form onSubmit={withPassword} className="space-y-3">
+            {emailField}
+            <AuthField label="Password">
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                className={authInput}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </AuthField>
+            <button type="submit" disabled={busy} className={authPrimary}>
+              {busy ? 'Signing in…' : 'Sign in'}
+            </button>
+          </form>
+          <button type="button" className="text-sm font-semibold text-fg-3 hover:text-fg" onClick={() => go('email')}>
+            No password, or forgot it? Email me a code
+          </button>
+        </>
+      )}
+
+      {step === 'email' && (
+        <>
+          <div className="space-y-1">
+            <h1 className="text-xl font-bold text-fg">Sign in with a code</h1>
+            <p className="text-sm text-fg-3">We'll email you a 6-digit code.</p>
+          </div>
+          <form onSubmit={sendCode} className="space-y-3">
+            {emailField}
+            <button type="submit" disabled={busy} className={authPrimary}>
+              {busy ? 'Sending…' : 'Email me a code'}
+            </button>
+          </form>
+          <button type="button" className="text-sm font-semibold text-fg-3 hover:text-fg" onClick={() => go('password')}>
+            Sign in with a password instead
+          </button>
+        </>
+      )}
+
+      {step === 'code' && (
+        <>
+          <div className="space-y-1">
+            <h1 className="text-xl font-bold text-fg">Check your email</h1>
+            <p className="text-sm text-fg-3">
+              We sent a 6-digit code to <span className="font-semibold text-fg">{email}</span>. You can also open the link in that
+              email on this device.
+            </p>
+          </div>
+          <form onSubmit={verify} className="space-y-3">
+            <input
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]{6}"
+              maxLength={6}
+              required
+              placeholder="123456"
+              aria-label="6-digit code"
+              className={`${authInput} text-center font-mono text-2xl tracking-[0.4em]`}
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+            />
+            <button type="submit" disabled={busy || code.length !== 6} className={authPrimary}>
+              {busy ? 'Checking…' : 'Sign in'}
+            </button>
+          </form>
+          <div className="flex justify-between text-sm">
+            <button type="button" className="text-fg-3 hover:text-fg" onClick={() => go('email')}>
+              Use a different email
+            </button>
+            <button type="button" disabled={busy} className="text-fg-3 hover:text-fg" onClick={() => sendCode()}>
+              Send a new code
+            </button>
+          </div>
+        </>
+      )}
+
+      {error && <AuthError>{error}</AuthError>}
+    </AuthCard>
   );
 }

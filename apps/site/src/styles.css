@@ -186,6 +186,117 @@ sakuga-checkbox::part(label) {
   border-bottom-color: var(--accent);
 }
 
+/* Register: the one solid button up here, green (go). */
+.masthead__register {
+  font: 400 15px / 1 var(--display);
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--accent);
+  border: var(--bw) solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 4px 5px 0 var(--lav);
+  padding: 11px 18px 10px;
+  cursor: pointer;
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s;
+}
+.masthead__register:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 6px 0 var(--lav);
+}
+.masthead__register:active {
+  transform: translate(3px, 4px);
+  box-shadow: 1px 1px 0 var(--lav);
+}
+
+/* The "join as" dialog: two big choices, in the page's ink-and-lavender look. */
+.join {
+  width: min(92vw, 560px);
+  max-height: 92dvh;
+  border: var(--bw) solid var(--ink);
+  border-radius: var(--r);
+  box-shadow: 8px 9px 0 var(--lav);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 26px clamp(18px, 4vw, 30px) 28px;
+}
+.join::backdrop {
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+.join__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.join__close button {
+  font: 700 18px / 1 var(--body);
+  color: var(--dim);
+  background: none;
+  border: 0;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.join__close button:hover {
+  color: var(--ink);
+}
+.join__kicker {
+  font: 400 13px / 1 var(--dot);
+  color: var(--dim);
+}
+.join__title {
+  font: 400 clamp(26px, 5vw, 34px) / 1.1 var(--display);
+  margin: 8px 0 20px;
+}
+.join__choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.choice {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  text-decoration: none;
+  border: var(--bw) solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 5px 6px 0 var(--lav);
+  padding: 16px 16px 18px;
+  background: var(--paper);
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s,
+    background 0.12s;
+}
+.choice:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 7px 0 var(--accent-bright);
+  background: color-mix(in srgb, var(--accent-bright) 7%, var(--paper));
+}
+.choice:active {
+  transform: translate(3px, 4px);
+  box-shadow: 1px 1px 0 var(--lav);
+}
+.choice__tag {
+  justify-self: start;
+  font: 400 12px / 1 var(--dot);
+  color: #fff;
+  background: var(--ink);
+  padding: 5px 7px 4px;
+}
+.choice--venue .choice__tag {
+  background: var(--accent);
+}
+.choice__name {
+  font: 400 22px / 1.1 var(--display);
+  margin-top: 4px;
+}
+.choice__what {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--dim);
+}
+
 /* ------------------------------------------------------------------ splash */
 
 .splash {
@@ -1235,6 +1346,10 @@ sakuga-checkbox::part(label) {
   .masthead__nav {
     display: none;
   }
+  /* With the section links hidden, Register takes the right-hand end. */
+  .masthead__register {
+    margin-left: auto;
+  }
   .board__cols {
     display: none;
   }
@@ -1330,6 +1445,13 @@ sakuga-checkbox::part(label) {
   }
   .hero__gloss {
     display: none;
+  }
+  /* The issue line gives way so the logo and Register share one row. */
+  .masthead__issue {
+    display: none;
+  }
+  .join__choices {
+    grid-template-columns: 1fr;
   }
   .hud {
     grid-template-columns: 1fr 1fr;

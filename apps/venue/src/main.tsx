@@ -8,8 +8,10 @@ import { isAdmin, SessionProvider, useSession } from './lib/session';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { JoinPage } from './pages/JoinPage';
 import { AccountPage, Layout } from './pages/Layout';
+import { RegisterPage } from './pages/RegisterPage';
 import { SignInPage } from './pages/SignInPage';
 import { StaffJoinPage } from './pages/StaffJoinPage';
+import { StartPage } from './pages/StartPage';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000 } } });
 
@@ -30,6 +32,8 @@ function RequireAdmin() {
 
 const router = createBrowserRouter([
   { path: '/sign-in', element: <SignInPage /> },
+  // A venue owner creates their account (no invite needed), then names their venue at /start.
+  { path: '/register', element: <RegisterPage /> },
   { path: '/auth/callback', element: <AuthCallbackPage /> },
   // Development only: Vite replaces import.meta.env.DEV with false in production builds, so this
   // route and the page it loads are left out of them entirely.
@@ -41,6 +45,7 @@ const router = createBrowserRouter([
     children: [
       { path: '/join/:token', element: <JoinPage /> },
       { path: '/staff/:token', element: <StaffJoinPage /> },
+      { path: '/start', element: <StartPage /> },
       // Venue onboarding is full-screen, outside the portal chrome. It carries the map library and
       // Motion, so it loads only when an owner opens it.
       {
@@ -50,7 +55,7 @@ const router = createBrowserRouter([
       {
         element: <Layout />,
         children: [
-          // Loaded on demand: FullCalendar is most of the bundle, and sign-in shouldn't wait for it.
+          // Loaded on demand, so sign-in doesn't wait for the calendar.
           { index: true, lazy: async () => ({ Component: (await import('./pages/CalendarPage')).CalendarPage }) },
           { path: 'account', element: <AccountPage /> },
           { path: 'venues/:venueId/staff', lazy: async () => ({ Component: (await import('./pages/StaffPage')).StaffPage }) },

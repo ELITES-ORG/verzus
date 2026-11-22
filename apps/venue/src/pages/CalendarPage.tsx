@@ -128,7 +128,11 @@ export function CalendarPage() {
   if (!venue) {
     return (
       <Empty title="You're not part of a venue yet">
-        If you got an invite link from verzus or a venue owner, open it again while signed in.
+        Own a venue?{' '}
+        <Link to="/start" className="font-semibold text-fg underline">
+          Set it up
+        </Link>
+        . Joining a venue's staff? Open the invite link the owner sent you while signed in.
       </Empty>
     );
   }

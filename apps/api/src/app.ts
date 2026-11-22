@@ -1,15 +1,17 @@
 import { zValidator } from '@hono/zod-validator';
-import { ConfirmResultInput, CreateBookingInput, JoinMatchInput, OpenMatchInput } from '@verzus/schemas';
+import { ConfirmResultInput, CreateBookingInput, JoinMatchInput, OpenMatchInput, UsernameSignInInput } from '@verzus/schemas';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { AppError, ERROR_STATUS } from './domain/errors';
 import { type AuthConfig, type AuthVariables, requireUser } from './http/auth';
+import { clientIp, rateLimit } from './http/rate-limit';
 import type { Clock } from './ports/clock';
 import type { PaymentProvider } from './ports/payment-provider';
 import type { UnitOfWork } from './ports/repositories';
 import { confirmResult } from './use-cases/confirm-result';
 import { createBooking } from './use-cases/create-booking';
 import { handlePaymentEvent } from './use-cases/handle-payment-event';
+import { type SignInDeps, signInWithUsername } from './use-cases/sign-in-with-username';
 
 export interface AppDeps {
   uow: UnitOfWork;
@@ -17,6 +19,8 @@ export interface AppDeps {
   clock: Clock;
   auth: AuthConfig;
   corsOrigins: string[];
+  /** Username sign-in; left out when the API has no Supabase publishable key. */
+  signIn?: SignInDeps;
   onError?: (err: unknown) => void;
 }
 
@@ -34,6 +38,18 @@ export function createApp(deps: AppDeps) {
     .get('/health', (c) => c.json({ ok: true }))
 
     .get('/me', auth, (c) => c.json({ userId: c.get('userId') }))
+
+    // Sign-in with a username (email sign-in goes straight to Supabase). Returns a Supabase session
+    // for supabase.auth.setSession. Ten tries per address per ten minutes.
+    .post(
+      '/auth/username-sign-in',
+      rateLimit({ max: 10, windowMs: 10 * 60_000, key: clientIp }),
+      zValidator('json', UsernameSignInInput),
+      async (c) => {
+        if (!deps.signIn) throw new AppError('not_implemented', 'Username sign-in is not configured');
+        return c.json(await signInWithUsername(deps.signIn, c.req.valid('json')));
+      },
+    )
 
     .post('/bookings', auth, zValidator('json', CreateBookingInput), async (c) => {
       const result = await createBooking(deps, c.get('userId'), c.req.valid('json'));

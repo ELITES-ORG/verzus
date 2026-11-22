@@ -33,7 +33,30 @@
         <a href="#ladder">Ranks</a>
         <a href="#venues">Venues</a>
       </nav>
+      <button type="button" class="masthead__register" aria-haspopup="dialog" data-register>Register</button>
     </header>
+
+    <!-- Register: who are you? Each choice opens that app's sign-up. The hrefs are the live sites;
+         main.ts swaps in VITE_PLAYER_URL / VITE_VENUE_URL for other environments. -->
+    <dialog class="join" aria-labelledby="join-title" data-register-dialog>
+      <form method="dialog" class="join__close">
+        <button type="submit" aria-label="Close">✕</button>
+      </form>
+      <p class="join__kicker">New here</p>
+      <h2 id="join-title" class="join__title">Join verzus as…</h2>
+      <div class="join__choices">
+        <a class="choice" data-register-to="player" href="https://verzus-player.onrender.com/register">
+          <span class="choice__tag">P1</span>
+          <span class="choice__name">A player</span>
+          <span class="choice__what">Find a court and a fair rival near you, and earn your rank.</span>
+        </a>
+        <a class="choice choice--venue" data-register-to="venue" href="https://verzus-venue.onrender.com/register">
+          <span class="choice__tag">Keys</span>
+          <span class="choice__name">A venue owner</span>
+          <span class="choice__what">List your courts, take bookings and fill your quiet hours.</span>
+        </a>
+      </div>
+    </dialog>
 
     <main id="main">
       <!-- 1. Splash page ------------------------------------------------------ -->

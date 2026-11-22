@@ -1,54 +1,90 @@
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ErrorText, Field, PrimaryButton, TextField } from '@/components/form';
+import { api } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 
-/** Phone one-time-code sign-in. Locally, test numbers in supabase/config.toml accept code 123456. */
+/**
+ * Sign in with a username or email, and a password. An email goes straight to Supabase; a
+ * username goes through the verzus API, which looks up its email on the server (emails are never
+ * sent to the app) and hands back the session.
+ */
 export default function SignInScreen() {
-  const [phone, setPhone] = useState('');
-  const [code, setCode] = useState('');
-  const [sent, setSent] = useState(false);
+  const [who, setWho] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function submit() {
+    const id = who.trim();
+    if (!id || !password) return setError('Enter your username or email, and your password.');
     setBusy(true);
     setError(null);
-    const { error } = sent
-      ? await supabase.auth.verifyOtp({ phone, token: code, type: 'sms' })
-      : await supabase.auth.signInWithOtp({ phone });
-    setBusy(false);
-    if (error) return setError(error.message);
-    if (sent) router.back();
-    else setSent(true);
+    try {
+      if (id.includes('@')) {
+        const { error } = await supabase.auth.signInWithPassword({ email: id, password });
+        if (error) {
+          return setError(
+            error.code === 'email_not_confirmed'
+              ? 'Confirm your email first: open the link we sent when you registered.'
+              : 'Wrong email or password.',
+          );
+        }
+      } else {
+        const res = await api.auth['username-sign-in'].$post({ json: { username: id.toLowerCase(), password } });
+        if (res.status === 429) return setError('Too many tries. Wait a few minutes, then try again.');
+        if (!res.ok) return setError('Wrong username or password.');
+        const session = await res.json();
+        const { error } = await supabase.auth.setSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        });
+        if (error) return setError(error.message);
+      }
+      if (router.canGoBack()) router.back();
+      else router.replace('/');
+    } catch {
+      setError("Couldn't reach verzus. Check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
-    <View className="flex-1 gap-4 bg-surface p-6">
-      <Text className="text-xl font-semibold text-fg">{sent ? 'Enter the code we sent' : 'Sign in with your phone'}</Text>
-      <TextInput
-        className="rounded-control border border-line-strong bg-surface px-4 py-3 text-base text-fg placeholder:text-fg-3"
-        placeholder="+639170000001"
-        keyboardType="phone-pad"
-        autoComplete="tel"
-        value={phone}
-        onChangeText={setPhone}
-        editable={!sent}
-      />
-      {sent && (
-        <TextInput
-          className="rounded-control border border-line-strong bg-surface px-4 py-3 text-base text-fg placeholder:text-fg-3"
-          placeholder="6-digit code"
-          keyboardType="number-pad"
-          autoComplete="one-time-code"
-          value={code}
-          onChangeText={setCode}
+    <ScrollView className="flex-1 bg-surface" contentContainerClassName="gap-5 p-6" keyboardShouldPersistTaps="handled">
+      <Field label="Username or email">
+        <TextField
+          value={who}
+          onChangeText={setWho}
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="username"
+          textContentType="username"
+          returnKeyType="next"
         />
-      )}
-      {error && <Text className="text-danger">{error}</Text>}
-      <Pressable disabled={busy} onPress={submit} className="items-center rounded-control bg-accent py-3 disabled:opacity-60">
-        <Text className="font-medium text-on-accent">{sent ? 'Verify' : 'Send code'}</Text>
-      </Pressable>
+      </Field>
+      <Field label="Password">
+        <TextField
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          autoComplete="current-password"
+          textContentType="password"
+          returnKeyType="go"
+          onSubmitEditing={submit}
+        />
+      </Field>
+      {error && <ErrorText>{error}</ErrorText>}
+      <PrimaryButton label="Sign in" busyLabel="Signing in…" busy={busy} onPress={submit} />
+      <View className="flex-row flex-wrap justify-center gap-1">
+        <Text className="text-fg-3">New to verzus?</Text>
+        <Link href="/register" replace asChild>
+          <Pressable accessibilityRole="link">
+            <Text className="font-semibold text-fg underline">Create an account</Text>
+          </Pressable>
+        </Link>
+      </View>
       {__DEV__ && (
         <Link href="/dev-login" asChild>
           <Pressable className="items-center py-2">
@@ -56,6 +92,6 @@ export default function SignInScreen() {
           </Pressable>
         </Link>
       )}
-    </View>
+    </ScrollView>
   );
 }
